@@ -43,5 +43,5 @@ The first goal is to write up notes from MCMC topics course.  The second goal is
     * Batch Means
     * Spectral Variance
     * ESS
-    * Termonating the Simulation
+    * Terminating the Simulation
    
