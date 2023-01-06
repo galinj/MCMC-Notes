@@ -28,7 +28,7 @@ The first goal is to write up notes from MCMC topics course.  The second goal is
     * Total variation
     * Wasserstein
     * Stochastic Stability of MCMC
-    * Minorizatin, Coupling, and Split Chain
+    * Minorization, Coupling, and Split Chain
   * Estimation
     * LLN
     * CLT (Means, quantiles, and combo)
