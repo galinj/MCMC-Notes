@@ -3,21 +3,21 @@
 The first goal is to write up notes from MCMC topics course.  The second goal is to see if it can be turned into a sensible book.  The intendend audience consists of researchers bew to MCMC theory (as opposed to Markov chain theory), for example, third-year PhD students.
 
 * Monte Carlo
- * Motivating examples
- * Monte Carlo method
- * MC sample size versus sample size
- * Theory of Monte Carlo
- * Producing a sample  
-   * Accept-Reject
-   * Ratio of Uniforms
-   * Linchpin Variables
+  * Motivating examples
+  * Monte Carlo method
+  * MC sample size versus sample size
+  * Theory of Monte Carlo
+  * Producing a sample  
+    * Accept-Reject
+    * Ratio of Uniforms
+    * Linchpin Variables
  
- * Markov Chain Monte Carlo
+* Markov Chain Monte Carlo
   * Markov Chains
-   * Markov Kernels
-   * Invariance
-   * Combining Kernels
-   * Stochastic Stability
+    * Markov Kernels
+    * Invariance
+    * Combining Kernels
+    * Stochastic Stability
   * Constructing MCMC Algorithms
     * Metropolis-Hastings
     * Choosing the Proposal
@@ -31,9 +31,17 @@ The first goal is to write up notes from MCMC topics course.  The second goal is
     * Minorizatin, Coupling, and Split Chain
   * Estimation
     * LLN
-    * CLT
+    * CLT (Means, quantiles, and combo)
     * Mixing Processes
     * Rates of Convergence
     * Comparison Theorems
   * Establishing Geometric Ergodicity
+    * Drfit and Minorization
+    * Examples and more examples
+    * Variable Transformation
+  * Monte Carlo Error
+    * Batch Means
+    * Spectral Variance
+    * ESS
+    * Termonating the Simulation
    
