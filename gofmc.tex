@@ -1,0 +1,823 @@
+\documentclass[12pt]{article}
+
+\usepackage{geometry}
+\geometry{hmargin=.75in,vmargin={1.25in,1.25in},nohead,footskip=0.5in}
+\renewcommand{\baselinestretch}{1.5}
+\setlength{\baselineskip}{0.4in} \setlength{\parskip}{.05in}
+
+%% FIGURES AND TABLES
+\usepackage{graphicx}
+\usepackage{floatrow}
+
+\usepackage[numbers]{natbib}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{verbatim}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{conj}{Conjecture}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{cor}{Corollary}[section]
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+\newtheorem{assmp}{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{hw}{Exercise}[section]
+
+\newcommand{\argmin}{\operatorname{argmin}}
+
+\newcommand{\sX}{\mathsf{X}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\BX}{{\cal B}(\mathsf{X})}
+\newcommand{\sA}{\mathsf{A}}
+
+
+\title{Monte Carlo}
+\author{Galin L. Jones\\
+%{}\\
+{\small School of Statistics}\\
+{\small University of Minnesota}}
+\date{Draft: \today}
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+\label{gofmc:sec:intro}
+
+The goal of this chapter is to introduce the main themes of the Monte Carlo 
+method.  The ``Monte Carlo method'' means using a computer to
+simulate data in order estimate fixed unknown quantities
+(i.e. features or parameters) from a specified distribution.  These
+quantities can be expectations, probabilities, density functions,
+quantiles, and so on. This likely sounds familiar since it is
+basically a description of much of classical statistics.  The main
+difference is that it is based on data produced by a computer,
+rather than collected from an external experiment.  There are two
+fundamental issues in implementing the Monte Carlo method: (1)
+designing algorithms that produce useful observations and (2) using
+these observations to estimate features of the given distribution.
+
+The simulated data can be a random sample as in classical Monte
+Carlo\footnote{``Classical Monte Carlo'' is a cumbersome phrase so
+  ``Monte Carlo'' will be used instead.  Hopefully, this will not
+  cause confusion as ``Monte Carlo'' is often used as shorthand for
+  ``Monte Carlo method''.} or a realization of a Markov chain as in
+Markov chain Monte Carlo (MCMC).  An independent and identically
+distributed (iid) sequence is a trivial Markov chain so it is not too
+surprising that Monte Carlo and MCMC have much in common.  However,
+simulating a Markov chain introduces complications beyond those
+encountered when iid samples are available.  Thus this chapter begins
+at the beginning and focuses on the simpler setting where simulation
+of an iid sample is possible.
+
+\subsection{Motivating Examples}
+\label{gofmc:sec:motivating_examples}
+
+Suppose distribution $F$ has support $\sX$ and there is either an
+associated probability density function (pdf) or probability mass
+function (pmf), either of which will be denoted by $f$ and referred to
+as a \textit{probability function} (pf).  If, at various points,
+something more general is needed, it will be carefully stated.  The
+goal is to estimate $\theta \in \mathbb{R}^p$, $p \ge 1$ which is a
+vector of fixed, unknown features of $F$.  For example, components of
+$\theta$ often include the following.
+\begin{enumerate}
+\item Expectations.  Let $h : \sX \to \real$ and 
+\[
+\mu_h = E_{F}[h(X)] = \int_{\sX} h(x) F(dx) \; .
+\]
+This notation is used throughout and allows us to avoid having
+separate formulas for the continuous case where it denotes $\mu_{h} =
+\int_{\sX} h(x) f(x) dx$ and the discrete case where it denotes
+$\mu_{h} = \sum_{x \in \sX} h(x) f(x)$.
+
+\item Quantiles.  Set $V=h(X)$ and let $F_V$ denote the distribution
+  of $V$.  If $0 < q < 1$, the $q$th quantile is
+\[
+\xi_{q} = F_{V}^{-1}(q) = \inf \{ v \, : \, F_{V}(v) \ge q\} \; .
+\]
+
+\end{enumerate}
+Monte Carlo can be used for more than estimating expectations and
+quantiles, but these applications are common.  A few examples follow
+which are intended to illustrate more concretely the types of
+settings where Monte Carlo might be useful.  Although it might not be
+obvious at first glance, this includes settings that have no inherent
+probabilistic component.
+
+\begin{example}
+\label{gofmc:ex:integral}
+Consider
+\[
+\int_{0}^{1} \frac{1}{(x+1)^{2.3} [\log ( x+3)]^{2}}\,  dx \, ,
+\]
+which does not appear easy to solve, but can be expressed as an
+expectation.  If $f$ is a pdf on $(0,1)$, then
+\begin{align*}
+\int_{0}^{1} \frac{1}{(x+1)^{2.3} [\log ( x+3)]^{2}}\, dx \, & =
+\int_{0}^{1} \frac{1}{(x+1)^{2.3} [\log ( x+3)]^{2}}\, \frac{f(x)}{f(x)} 
+\, dx \\
+& = E_{F}  \left[ \frac{1}{ f(x) (x+1)^{2.3} [\log ( x+3)]^{2}} \right]
+\; .
+\end{align*}
+\end{example}
+
+The example also makes the point that any expectation can be converted
+to an expectation with respect to a different distribution, say $G$
+having pf $g$ and support containing $\sX$:
+
+\[
+\mu_{h} = \int_{\sX} h(x) f(x) \, dx = \int_{\sX} \frac{h(x)
+  f(x)}{g(x)} g(x) \, dx = \mu_{hf/g} \; .
+\]
+
+\begin{example}[Bayesian Logistic Regression]
+  Let $X$ be a known $n \times p$ matrix with rows $x_{i}$ and let
+  $\beta$ be a $p$-vector of parameters. Set
+\[
+h(x_{i}) = \frac{\exp(x_{i} \beta)}{1+\exp(x_{i} \beta)}
+\]
+and assume $Y_{i} \sim \text{Bernoulli}(h(x_{i}))$, independently for
+$i=1, \ldots, m$. Let $y$ denote all of the observed data and assume
+$\beta \sim \text{N}_{p}(0, I_{p})$ so that the posterior is
+characterized by
+\[
+q(\beta |y) \propto \left[ \prod_{i=1}^{n} \frac{e^{-y_i x_i^T
+      \beta}}{1+ e^{- x_i^T \beta}}\right] e^{- \frac{1}{2} \beta^T
+  \beta} \; .
+\]
+The normalizing constant or marginal density is
+\[
+m(y) = \int \left[ \prod_{i=1}^{n} \frac{e^{-y_i x_i
+      \beta}}{1+ e^{- x_i \beta}}\right] e^{- \frac{1}{2} \beta^T
+  \beta} \; d\beta \; ,
+\]
+which is analytically intractable. A typical goal is to calculate the
+posterior mean of $\beta$:
+\[
+\mu_{\beta} = E_q [\beta | y] = \int_{\real^p} \beta \,q(\beta|y)\,
+d\beta \; .
+\]
+Posterior inference also often requires expectations of other
+functions $h(\beta)$, such as second moments, so the general goal is
+calculation of
+\[
+\mu_{h} =  E_q [h(\beta) | y] = \int_{\real^p} h(\beta) \,q(\beta|y)\,
+d\beta \; .
+\]
+Posterior credible intervals can also be based on quantiles.  For
+example, suppose the analysis requires a .95 credible interval $(\xi_{.025},
+\xi_{.975})$ for the first component of $\beta$, that is $\beta_1$. If
+$q(\beta_{1} | y)$ is the marginal posterior density of $\beta_{1}$,
+finding $(\xi_{.025}, \xi_{.975})$ requires solving
+$$
+\int_{-\infty}^{\xi_{.025}} q(\beta_{1} | y) d \beta_{1} = .025 ~~~~
+\text{and} ~~~~
+\int_{-\infty}^{\xi_{.975}} q(\beta_{1} | y) d \beta_{1} = .975 \; .
+$$
+\end{example}
+
+\begin{example}[Bayesian Linear Model]
+Suppose that, for $i=1,\ldots,k$ and $j=1,\ldots,m_i$,
+\begin{align*}
+Y_{ij} | \tau_i, \lambda_e & \sim \text{N}(\tau_{i}, \lambda_e^{-1})\\
+\tau_{i} | \mu, \lambda_e & \sim \text{N}(\mu, \lambda_t^{-1})\\
+\mu &\sim \text{N}(m_0, s_0^{-1}) \\
+\lambda_e &\sim \text{Gamma}(a_1,
+b_1) \\
+\lambda_{t} &\sim \text{Gamma}(a_2, b_2) \; .
+\end{align*}
+Letting $y$ denote all of the observed data and $\tau$ denote all of the
+$\tau_i$, the posterior distribution is characterized by
+\[
+q(\tau, \mu, \lambda_e, \lambda_t | y) \propto f(y|\tau,
+\lambda_e) f(\tau | \mu, \lambda_t) f(\mu) f(\lambda_e) f(\lambda_t)
+\; .
+\]
+The normalizing constant or marginal density of $y$ is
+\[
+m(y) = \int f(y|\tau,
+\lambda_e) f(\tau | \mu, \lambda_t) f(\mu) f(\lambda_e) f(\lambda_t)\,
+d\tau\, d\mu\, d\lambda_e \, d\lambda_t \; ,
+\]
+and is analytically intractable. Interest often centers on posterior
+expectations and quantiles.  For example,
+\[
+\mu_{\tau}=E_q[\tau |y] = \int \tau q(\tau | y)\,d\tau = \int \tau \, q(\tau, \mu, \lambda_e,
+\lambda_t |y) \, d\mu \, d\lambda_e \, d\lambda_t \, d\tau \; .
+\]
+Because $m(y)$ is unavailable to us, analytical evaluation of
+posterior expectations or quantiles is unavailable.
+\end{example} 
+
+While Monte Carlo methods have had a profound impact on the
+implementation of Bayesian inference, they are also important to
+the implementation of frequentist inference.  Here is a simple example
+to consider.
+
+\begin{example}[Logit-Normal Generalized Linear Mixed Model]
+Let
+\[
+p(\beta, u) = \frac{e^{\beta + u}}{1 + e^{\beta + u}}\, .
+\]
+Suppose $Y | u, \beta \sim \text{Bernoulli}(p(\beta, u))$ and $U|\lambda
+\sim \text{N}(0, \lambda)$.
+
+Then the likelihood is
+$$
+L(\beta, \lambda)  = \int_{-\infty}^{\infty} f(y|u, \beta) f(u | \lambda) \, du 
+ =\frac{1}{\sqrt{2 \pi \lambda}} \int_{-\infty}^{\infty}
+\frac{e^{\beta + u}}{(1 + e^{\beta + u})^2} e^{- \frac{1}{2\lambda}
+  u^2}\, du \; .
+$$
+Now $L(\beta, \lambda)$ can be written as an expectation: let $G$ be
+a distribution having density $g$ on $\mathbb{R}$ so that
+\[
+\begin{split}
+L(\beta, \lambda) & = \int_{-\infty}^{\infty} \frac{f(y|u, \beta) f(u
+  | \lambda)}{g(u)} g(u) \, du \\
+& = E_{G}\left[  \frac{f(y|u, \beta) f(u
+  | \lambda)}{g(u)} \right] \; .
+\end{split}
+\]
+Since the likelihood can be expressed as an expectation Monte Carlo
+can be used to approximate the function \cite{geye:1994}.
+
+\end{example}
+
+\section{Monte Carlo}
+\label{gofmc:sec:Monte Carlo}
+
+Settings where Monte Carlo is appropriate often begin with a given
+distribution $F$ and the goal is to estimate $\theta$, a vector of
+features of $F$.  In Monte Carlo experiments, observations
+$X_{1}, \ldots, X_{m}$ are simulated and are used to construct an
+estimator $\theta_m$ in such a way that $\theta_m \approx \theta$ for
+large $m$.  Calculation of the estimator $\theta_m$ alone is an
+incomplete solution to the problem. No matter how large $m$ is, there
+will be an unknown \textit{Monte Carlo error}, $\theta_m - \theta$ and
+hence $\theta_m$ will be more valuable if a measure of the
+Monte Carlo error is included. 
+
+\textit{Monte Carlo sample size} is used to mean the size of the
+simulation effort and it will be denoted $m$ while $n$ will be used to
+denote the sample size associated with the original statistical
+setting.  A couple of examples may help illuminate the difference.
+
+\begin{example}
+  Suppose $Y_1,Y_2, Y_3$ are iid Poisson($\lambda$) and $\lambda \sim
+  \text{Gamma}(2,3)$.  Then the posterior is $\lambda| y_1, y_2, y_3
+  \sim \text{Gamma}(3\bar{y} + 2, 6)$, where $\bar{y}$ is the sample
+  mean of the three observations.  There is no simple closed form for
+  the median of the posterior, but simulation can be used to estimate
+  it.  Simulate a large number, 10000 say, observations from the
+  posterior distribution.  The sample median is an estimate of the
+  true posterior median.  Here $n=3$ and $m=10000$.
+\end{example}
+
+\begin{example}
+  Suppose $Y_1 \ldots, Y_{100}$ and $x_i = i/5$ for $i=1,
+  \ldots, 50$. Lets use linear regression to model the observations
+  as $Y_i=\beta x_i + \varepsilon_i$ and $\varepsilon_i
+  \stackrel{iid}{\sim}\text{N}(0, \sigma^2)$.  The goal is to test the
+  hypotheses $H_0 \, : \, \beta=0$ versus $H_1 \, : \, \beta \neq 0$
+  with a type 1 error rate of $\alpha=.05$.  Then $\beta$ is estimated
+  using least squares and a standard t-test used for testing the
+  hypotheses.
+
+  How robust is this procedure to departures from the assumption
+  $\varepsilon_i \stackrel{iid}{\sim}\text{N}(0, \sigma^2)$?  If, in
+  fact, $\varepsilon_i \stackrel{iid}{\sim} \text{Cauchy}(0, \sigma)$,
+  but the t-test is used, what happens to the type 1 error
+  rate?  One way to find out is via simulation.  Do the following 1000
+  times: fix $\beta=0$, simulate $\varepsilon_i \stackrel{iid}{\sim}
+  \text{Cauchy}(0, \sigma)$ for $i=1, \ldots, 50$ and conduct the
+  t-test.  The proportion out of 1000 that reject is an estimate of
+  the type 1 error.  Here $n=50$ and $m = 1000$.
+\end{example}
+
+While the theory of Monte Carlo is large sample frequentist theory,
+the asymptotics are as the Monte Carlo sample size $m$ increases.
+Typically, the observed data sample size $n$ is treated as fixed and
+known, but there are situations where it makes more sense to let $n$
+increase to infinity while fixing $m$ or let $m$ and $n$ increase
+simultaneously. These last two settings will not be addressed further.
+
+\subsection{Producing a random sample}
+\label{gofmc:sec:Producing}
+
+Monte Carlo methods are based on the ability to have the computer
+generate independent $\text{Uniform}(0,1)$ observations.  Of course,
+the observations are not random since they are produced by
+deterministic methods.  However, good pseudorandom number generators
+produce sequences that effectively mimic independent
+$\text{Uniform}(0,1)$ observations and hence are known as pseudorandom
+sequences.  It is not clear that truly random sequences would be
+desirable since repeatability would be problematic, making debugging
+much more challenging.  For the most part, this issue will not be
+considered further since the distinction between pseudorandom and
+random often will not be useful here.
+
+This section considers some basic ways of obtaining a random sample
+from (non-uniform) $F$, including inversion, ratio of uniforms, the
+accept-reject algorithm, and linchpin variable sampling.  This
+presentation is not in any way intended to be comprehensive.
+
+\subsubsection{Inversion} 
+Define $F^{-1} : (0,1) \to \mathbb{R}$ by
+$$
+F^{-1}(y) = \inf \{ x\, : \, F(x) \ge y\} \; .
+$$
+The \textit{quantile function theorem} is the foundation for
+simulating random variates from an arbitrary distribution given the
+ability to simulate from a Uniform distribution.
+
+\begin{thm}\label{thm:quantile function}
+If $U \sim \text{Uniform}(0,1)$ and $X = F^{-1}(U)$, then $X \sim F$.
+\end{thm}
+
+\begin{example}
+  Suppose $\beta > 0$.  Inversion can be used to construct a draw from
+  an $\text{Exp}(\beta)$ distribution.  Then $F^{-1}(y) = -\beta
+  \log(1-y)$ so if $U \sim \text{Uniform}(0,1)$, then $F^{-1}(U) =
+  -\beta \log(1-U) \sim \text{Exp}(\beta)$.
+\end{example}
+
+When $F^{-1}$ is explicitly available and calculation of it is fast,
+inversion is practical, but these limitations often prevent its use.
+
+\subsubsection{Accept-Reject}
+The accept-reject algorithm uses draws from a convenient distribution
+$G$, having pf $g$, say, and converts them into draws from $F$.
+Suppose the support of $G$ contains $\sX$ and that
+\[
+M = \sup_{x \in \sX} \frac{f(x)}{g(x)}< \infty \; .
+\]
+
+\begin{algorithm}[H]
+ \caption{Accept-Reject} \label{gofmc:alg:accept-reject}
+ \begin{algorithmic}[1]
+ \State Draw $Y \sim G$
+ \State Draw $U \sim \text{Uniform}(0,1)$
+ \State If
+ \[
+u \le \frac{f(y)}{M g(y)}
+ \]
+accept $y$ as a draw form $F$; otherwise return to step 1.   
+ \end{algorithmic}
+\end{algorithm}
+
+The accept-reject algorithm is a stochastic algorithm in that
+the accept-reject step is random.  The probability of acceptance on a 
+given step is
+\begin{align*}
+P( U \le f(y) / M g(y)) & = E \left[P( U \le f(y) / M g(y)) | Y \right]\\
+& = E \left[ \frac{f(Y)}{Mg(Y)} \right]\\
+& = \frac{1}{M} \; .
+\end{align*}
+
+\begin{thm} \label{gofmc:thm:accept-reject}
+Algorithm~\ref{gofmc:alg:accept-reject} produces $X \sim F$.
+\end{thm}
+
+\begin{proof}
+Notice that
+\begin{align*}
+P(X \le x) & = P(Y \le x | U \le f(y) / M g(y)) \\
+& =  \frac{P(Y \le x,  U \le f(y) / M g(y))}{P( U \le f(y) / M g(y)) }
+\; .
+\end{align*}
+Now consider numerator and denominator separately:
+\begin{align*}
+P(Y \le x,  U \le f(y) / M g(y)) &= E \left[ P(Y \le x,  U \le f(y) / M
+  g(y)) | Y \right] \\
+& = E \left[ I(Y \le x) \frac{f(Y)}{M g(Y)} \right] \\
+& = \frac{1}{M} F(x)
+\end{align*}
+and
+\begin{align*}
+P( U \le f(y) / M g(y)) & = E \left[P( U \le f(y) / M g(y)) | Y \right]\\
+& = E \left[ \frac{f(Y)}{Mg(Y)} \right]\\
+& = \frac{1}{M} \; .
+\end{align*}
+Putting these together yields $P(X \le x) = F(x)$, which
+proves the claim.
+\end{proof}
+
+Clearly, the choice of proposal density $g$ is crucial to the success
+of the algorithm.  Note that $M$ is the expected number of proposals
+required before a draw is obtained.  To make $M$ smaller and the
+algorithm more efficient requires a proposal $g$ that mimics $f$ in
+its tails.
+
+Also notice that accept-reject can be used when the normalizing
+constant for $f$ is unknown.  Let $f(x) =c_1 h(x)$, $g(x) = c_2 l(x)$,
+and
+\[
+\sup_{x \in \sX} \frac{h(x)}{l(x)} = K\; .
+\]
+If $U \sim \text{Uniform}(0,1)$ and $Y \sim G$, then 
+\[
+U \le \frac{h(y)}{Kl(y)} = \frac{f(y)}{\frac{c_1}{c_2} K g(y)} = \frac{f(y)}{M g(y)}
+\]
+and hence yields an equivalent accept-reject algorithm.
+
+\subsubsection{Ratio of Uniforms}
+
+Let $h$ be a positive integrable function on $(a,b)$ where $a$ and
+$b$ are not necessarily finite.  Define
+\begin{equation}
+\label{gofmc:eq:rou region}
+\sA_h = \{(x,y)~:~ 0 \le x \le h^{1/2}(y/x), ~~a < y/x < b \} \; .
+\end{equation}
+
+\begin{example}
+\label{gofmc:ex:rou cauchy}
+Suppose $X \sim \text{Cauchy}(0,1)$, then $h(x) = [1+x^2]^{-1}$ and
+\[
+\sA_h = \{(x,y)~:~ x > 0~\text{and}~x^2 + y^2 \le 1\}\, .
+\]
+\end{example}
+
+\begin{thm}
+\label{gofmc:thm:rou}
+If $(U,V)$ is uniformly distributed on $\sA_h$, then $X=V/U$ has pdf
+$f(x) \propto h(x)$.
+\end{thm}
+Theorem~\ref{gofmc:thm:rou} suggests a simple algorithm for
+generating from a non-uniform distribution having pf $f$.
+
+\begin{algorithm}[H]
+ \caption{Ratio of Uniforms} \label{gofmc:alg:rou}
+ \begin{algorithmic}[1]
+ \State Draw $(U,V)$ uniformly on $\sA_h$
+ \State Set $X=V/U$   
+ \end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{gofmc:alg:rou} can be efficient, but generating
+uniformly on $\sA_h$ can be challenging.  Fortunately, there is a
+special case of the accept-reject algorithm for avoiding this
+bottleneck.  Set $a=0$,
+$$
+b = \sup_{x} \sqrt{h(x)} < \infty\, , ~~~~ c = \sup_{x} x \sqrt{h(x)}
+< \infty\, , ~ \text{and} ~~  d = \inf_{x} x \sqrt{h(x)} > -\infty \;
+. 
+$$
+Then $\sA_h \subseteq A=[a,b] \times [c,d]$ which suggests the
+following ratio of uniforms algorithm using accept-reject.
+
+\begin{algorithm}[H]
+ \caption{Ratio of Uniforms using Accept-Reject} \label{gofmc:alg:rou-ar}
+ \begin{algorithmic}[1]
+   \State Draw $U\sim \text{Uniform}(a,b)$
+   \State Draw $V \sim \text{Uniform}(c,d)$
+ \State If $U \le h^{1/2}(V/U)$, set $X=V/U$; otherwise, repeat step 1.
+ \end{algorithmic}
+\end{algorithm}
+
+Now it is easy to see that the probability of acceptance is
+\begin{equation}
+\label{gofmc:eq:rou acceptance probability}
+\frac{\text{area}(\sA_h)}{\text{area(A)}}=\frac{\text{area}(\sA_h)}{b(d-c)} 
+\end{equation}
+and hence that the mean number of proposals until success is finite.
+
+\begin{example}
+This is a continuation of example~\ref{gofmc:ex:rou cauchy}.  Notice that
+$$
+A=[0,1] \times [-1,1] 
+$$
+and the acceptance probability \eqref{gofmc:eq:rou acceptance
+  probability} is $\pi / 4$.
+\end{example}
+
+\subsubsection{Linchpin Variables}
+\label{gofmc:sec:linchpin variables}
+
+The accept-reject and ratio of uniforms algorithms can be difficult to
+apply in multivariate settings, that is, when $d > 1$. However,
+surprisingly often a complicated multivariate simulation setting can
+be converted to simulating from a simpler distribution.  Suppose $f$
+can be expressed as a product of a conditional pf $f_{X \mid Y}$ and
+a marginal pf $f_{Y}$ so that
+\[
+f(x, y) = f_{X \mid Y}(x|y) f_{Y}(y)
+\]
+If sampling from $f_{X \mid Y}$ is straightforward, then say $Y$ is a
+{\em linchpin variable}.
+
+\begin{algorithm}[H]
+ \caption{Linchpin Variable Algorithm} \label{gofmc:alg:lv}
+ \begin{algorithmic}[1]
+   \State Draw $Y \sim F_Y$ 
+   \State Draw $X \sim F_{X|Y}(\cdot \mid Y)$
+ \end{algorithmic}
+\end{algorithm}
+
+It should be obvious that the linchpin variable algorithm will be
+useful only when sampling from the marginal $F_Y$ is easier than
+sampling from the joint $F$.
+
+\begin{example}
+\label{gofmc:ex:pump failure}
+For $i=1, \ldots, n$ assume $t_i > 0$ is known and let
+$Y_{i} | \lambda_i \stackrel{ind}{\sim} \text{Poisson}(t_i
+\lambda_i)$.  Assume priors
+$\lambda_i \stackrel{ind}{\sim} \text{Gamma}(a, \beta)$ and
+$\beta \sim \text{Gamma}(c, d)$ with $a$, $c$, and $d$ known positive
+constants. The posterior is characterized by
+$$
+f(\beta, \lambda |y) \propto \left( \prod_{i=1}^{n} \lambda_{i}^{a +
+    y_i - 1} e^{-(\beta+ t_i)\lambda_i}\right) \beta^{an+c-1}
+e^{-\beta d} \; .
+$$
+By inspection the conditionals
+$\lambda_i | \beta \stackrel{ind}{\sim} \text{Gamma}(a+y_i, \beta +
+t_i)$ and the marginal pf for $\beta$ is characterized by
+$$
+f(\beta | y) \propto \beta^{an+c-1} e^{-\beta d} \left( \beta + t_i
+\right)^{-(a+y_i)} \; .
+$$
+Thus $\beta$ is a linchpin variable. See exercise~\ref{gofmc:hw:pump
+  failure} for an accept-reject algorithm to sample from the posterior
+marginal.
+\end{example}
+
+\begin{example} \label{gofmc:ex:rosenthal}
+For $i=1,\ldots, K$ suppose that for known $a, b, c > 0$,
+\begin{align*}
+Y_i | \theta_i  \sim  \text{N}(\theta_i, a) ~~&~~~~~ \theta_i | \mu, \lambda \sim  \text{N}(\mu, \lambda)\\
+\lambda  \sim \text{IG}(b, c) ~~&~~~~~  f(\mu)  \propto 1 \, .
+\end{align*}
+Then the hierarchy yields a proper posterior $f(\theta, \mu, \lambda |
+y)$ with $\theta=(\theta_1, \ldots, \theta_K)^T$ and $y=(y_1, \ldots,
+y_K)^T$.  Consider the factorization \cite[see][]{jone:hara:caff:neat:2006} 
+$$
+f(\theta, \mu, \lambda | y) = f(\theta | \mu, \lambda, y) f(\mu |
+\lambda, y) f(\lambda |y) \; . 
+$$
+Then $f(\theta | \mu, \lambda, y)$ is the product of univariate normal
+densities $\theta_i | \mu, \lambda, y \sim \text{N}((\lambda y_i +
+a\mu)/(a+\lambda), \, a\lambda / (a + \lambda))$.  Now $f(\mu |
+\lambda, y)$ is also a normal density $\text{N}(\bar{y},
+(a+\lambda)/K)$. Finally, 
+$$
+f(\lambda | y) \propto \frac{1}{\lambda^{b+1} (a + \lambda)^{(K-1)/2}}
+\exp\left\{ - \frac{c}{\lambda} - \frac{1}{2(a+\lambda)}
+  \sum_{i=1}^{K} (y_i - \bar{y})^{2}\right\} \; . 
+$$
+Thus $\lambda$ is a linchpin variable. See
+exercise~\ref{gofmc:hw:rosenthal} for an accept-reject algorithm to
+sample from the posterior marginal.   
+\end{example}
+
+Linchpin samplers will typically not be useful when the dimension of
+the linchpin variable is too large.  The following example illustrates
+this.
+
+\begin{example}
+  \label{gofmc:ex:Bayesian lasso}
+  
+  Consider a version of the so-called Bayesian lasso. Let $X$ be a
+  known $m \times p$ design matrix and assume $\lambda > 0$ is known.
+  Assume $a, \, b >0$ are known and
+\begin{align*}
+Y|\beta, \gamma & \sim \text{N}_{m}(X\beta, \gamma^{-1}I_{m}) \\
+\nu(\beta|\gamma) & = \left(\frac{\lambda \gamma}{4}\right)^{p}
+                    \exp\left\{ -\frac{\lambda \gamma}{2}
+                    \|\beta\|_{1}\right\}\\ 
+\gamma & \sim \text{Gamma}(a,b) \, .
+\end{align*}
+This hierarchy gives rise to a posterior density which has conditional 
+$$
+\gamma | \beta, y \sim \text{Gamma} \left(p + a + \frac{n}{2}, \, b +
+  \frac{\lambda \|\beta\|_{1} + \|y- X\beta \|_{2}^{2}}{2}\right) 
+$$
+and marginal
+$$
+f(\beta | y) \propto \left(1 + \frac{\lambda \|\beta\|_{1} + \|y-
+    X\beta \|_{2}^{2}}{2b}\right)^{-(a + p + n/2)} \, . 
+$$
+In principle, one can construct an accept-reject sampler for sampling
+form the marginal of $\beta|y$ when $X$ is full rank.  However, the
+method is so inefficient as to be useless.  Moreover, in situations
+where the lasso may be useful $X$ is often not of full rank or $p$ is
+large so that this linchpin variable sampler is not useful.
+\end{example}
+
+\subsection{Estimation Theory for Monte Carlo}
+\label{gofmc:sec:Theory}
+
+The estimation theory of Monte Carlo largely coincides with
+classical large-sample frequentist statistics.  As such this will not
+be a comprehensive review, instead it is focused on a few key ideas.
+
+\subsubsection{Monte Carlo estimation}
+
+Suppose there is a Monte Carlo sample
+$X_{1},\ldots, X_{m} \stackrel{iid}{\sim} F$ and we want to evaluate
+an expectation with respect to $F$
+\[
+\mu_{h} := E_{F} [h (X)] = \int_{\sX} h(x) F(dx) \; .
+\]
+If $E_{F}|h(X)| < \infty$, then the strong law of large numbers (SLLN)
+obtains so that, with probability 1, as $m \to \infty$,
+\begin{equation}
+\label{gofmc:eq:iid slln}
+\mu_{m} : = \frac{1}{m} \sum_{i=0}^{m-1} h(X_{i}) \to \mu_{h} \; .
+\end{equation}
+Thus the sample mean is an asymptotically valid estimator of $\mu_h$.
+
+Estimation of quantiles follows much the same pattern as estimation of
+expectations.  Set $V=h(x)$ and let $F_V$ denote the distribution of
+$V$.  If $0 < q < 1$, the $q$th quantile is
+\[
+\xi_{q} = F_{V}^{-1}(q) = \inf \{ v \, : \, F_{V}(v) \ge q\} \; .
+\]
+If $F_V$ is absolutely continuous and has continuous density function
+$f_V$ satisfying $0 < f_V(\xi_q) < \infty$, then $\xi_q$ is the unique
+solution of $F_V(y-) \le q \le F_V(y)$.
+
+If $X_1, \ldots, X_m$ are iid $F$, set $Y_i = h(X_i)$ for
+$i=1, \ldots, m$.  Let $Y_{m(j)}$ be the $j$th order statistic of
+Monte Carlo sample.  Then an estimator of $\xi_q$ is
+\begin{equation}
+\label{gofmc:eq: sample quantile}
+\xi_{m,q} = Y_{m(j)}~~~~\text{where}~~~j-1 < mq \le j
+\end{equation}
+and, with probability 1,
+\begin{equation}
+\label{gofmc:eq:quantile convergence}
+\xi_{n,q} \to \xi_q ~~~\text{ as } ~~ m \to \infty\, .
+\end{equation}
+
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\begin{hw}
+Let $R = \{(x_1, x_2, x_3) ~:~ 0\le x_1\le x_2, ~0 \le x_1 \le
+  \sqrt{x_3},~ \text{and}~ x_1^2 + x_2^2 + x_3^2 \le 1 \}$.
+\begin{enumerate}
+\item Show that estimating the volume of $R$ fits the framework of
+  Section~\ref{gofmc:sec:motivating_examples}.
+\item Given the ability to simulate independent copies of $U \sim
+  \text{Uniform}(0,1)$ devise an algorithm for estimating the volume
+  of $R$.
+\end{enumerate}
+\end{hw}
+
+\begin{hw}
+  Prove Theorem~\ref{thm:quantile function}.
+\end{hw}
+
+\begin{hw} 
+Given $U_1, \ldots , U_m \stackrel{iid}{\sim}
+  \text{Uniform}(0,1)$ how how to produce $X \sim \text{Gamma}(m,
+  \beta)$ for any $\beta > 0$.
+\end{hw}
+
+\begin{hw}
+Suppose $F$ is continuous and that  $F^{-1}$ is not available in
+explicit form. Show how to use a root finding algorithm (such as
+bisection or Newton-Raphson) to use inversion to produce $X \sim F$. 
+\end{hw}
+
+\begin{hw}
+Let $F$ have support $\{1,2,\ldots,K\}$.  Use inversion to construct
+an algorithm for simulating $X \sim F$ based on the ability to
+simulate $U \sim \text{Uniform}(0,1)$. 
+\end{hw}
+
+\begin{hw}
+  Suppose inversion can be used to simulate $X \sim F$ and let
+  $F_{[a,b]}$ denote the $F$ restricted to the interval $[a,b]$ where
+  $[a,b]$ is contained in the support of $F$.  Show that inversion can
+  also be used to simulate $X \sim F_{[a,b]}$.
+\end{hw}
+
+\begin{hw}
+Show that if $U_1 , U_2 \stackrel{iid}{\sim}
+  \text{Uniform}(0,1)$ and
+\[
+X_1 = \cos(2\pi U_1) \sqrt{-2 \log U_2} ~~~~~~ X_2 = \sin(2\pi U_1)
+\sqrt{-2 \log U_2}\, ,
+\]
+then $X_1, X_2 \stackrel{iid}{\sim}\text{N}(0,1)$.
+\end{hw}
+
+\begin{hw}
+Prove Theorem~\ref{gofmc:thm:rou}.
+\end{hw}
+
+\begin{hw}
+Suppose $A \subseteq \sX$ and that $F_{A}$ is the distribution $F$
+constrained to have support $A$.  Notice that if $f$ is the pf of $F$
+and $c= P(X \in A)$, then the pf of $F_{A}$ is
+\[
+f_{A}(x) = c^{-1} f(x) I_{A}(x) \; .
+\]
+Devise a simple algorithm for simulating from $F_A$ given the ability
+to simulate from $F$.  Establish that the algorithm is valid.  
+\end{hw}
+
+\begin{hw}
+Implement the algorithm in the previous exercise to sample from a
+Beta(2,8) distribution constrained to $A=[.25,.45]$.  Compare the
+theoretical and observed acceptance rates. Estimate the mean of the
+constrained distribution and report the Monte Carlo standard error. 
+\end{hw}
+
+\begin{hw}
+Let
+$$
+f_{X_1, X_2}(x_1, x_2) \propto \exp \left\{ -5(x_2 - x_{1}^{2})^{2} -
+  \frac{1}{20} (x_1 - 1)^{2} \right\} \; . 
+$$
+Show that $X_1 \sim \text{N}(1,10)$ and $X_{2}|x_1 \sim
+\text{N}(x_{1}^2, 1/10)$. Use a linchpin variable approach to sample
+from the joint distribution and plot the results.   
+\end{hw}
+
+\begin{hw}\label{gofmc:hw:pump failure}
+Recall Example~\ref{gofmc:ex:pump failure}.  
+\begin{enumerate}
+\item Verify the expressions given for the posterior conditional of
+  $\lambda_i |\beta, y$ and the posterior marginal $\beta |y$. 
+\item If the observed data are $0, 0, 1, 0, 0, 2, 1, 1, 0, 0$, and
+  $t_i =1$ for all $i$, implement an accept-reject sampler with a
+  $\text{Gamma}(an+c , d)$ proposal distribution to sample from the
+  $\beta |y$ marginal.  How does the acceptance rate change as $d$
+  changes? 
+
+\item Implement a linchpin variable sampler to estimate the posterior
+  mean of $\beta, \lambda_1, \ldots, \lambda_{10}$.  What is the Monte
+  Carlo error of estimation? 
+\end{enumerate}
+\end{hw}
+
+\begin{hw} \label{gofmc:hw:jh2001}
+Suppose $Y_{1},\ldots,Y_{n} \sim \text{N}(\mu, \theta)$ and suppose
+the prior on $(\mu, \theta)$ is proportional to $1/\sqrt{\theta}$. 
+\begin{enumerate}
+\item Show that the posterior is proper if $n \ge 3$.
+\item Show that $\mu | \theta, y \sim \text{N}(\bar{y}, \theta / n)$ and $\theta | y \sim \text{IG}(n/2, ns^{2} / 2)$.
+\item Suppose $n=5$, $s^{2} = 2$ and $\bar{y}=1$.  Implement a
+  linchpin variable algorithm to estimate the posterior mean and 85\%
+  credible region for $\mu$.  
+\end{enumerate}
+\end{hw}
+
+\begin{hw} \label{gofmc:hw:rosenthal}
+Recall Example~\ref{gofmc:ex:rosenthal}.  
+\begin{enumerate}
+\item Verify the expressions given for $f(\theta| \mu, \lambda, y)$,
+  $f(\mu | \lambda, y)$, and  
+$f(\lambda |y)$. 
+\item Consider the data in the table~\ref{gofmc:tab:rosenthal}.
+\begin{table}
+\begin{center}
+\begin{tabular}{ccccc} 
+  \hline
+0.9981504 & -0.5370935 & 0.4000770 & -0.4832548 & -1.1237313 \\
+0.9712100 & 2.1511597 & 1.0207962 & -0.9021560 & -1.6078151 \\
+-2.2382052 & 0.5014717 & 1.3792220 & 0.3905185 & -0.8079672 \\
+0.5799192 & 2.4626378 & -1.0220088 & 1.5830721 & -0.7893418 \\
+  \hline
+\end{tabular}
+\label{gofmc:tab:rosenthal}
+\end{center}
+\end{table} 
+Implement an accept-reject sampler with an $\text{IG}(b,c)$ proposal
+distribution to sample from the $\lambda |y$ marginal.
+\end{enumerate}
+\end{hw}
+
+
+\newpage
+
+\section*{Appendix}
+\addcontentsline{toc}{section}{Appendix}
+
+More on pseudorandom number generation: \citet{devr:1986} and \citet{fish:1996}
+
+More on the quantile function theorem: \citet{angu:1994}.
+ 
+More on accept-reject:  \citet{caff:boot:davi:2001} and \citet{mart:luen:migu:2012} and squeeze principle and ARS
+
+\bibliography{../mcref}
+\bibliographystyle{apalike}
+\end{document}
