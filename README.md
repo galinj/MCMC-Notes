@@ -3,14 +3,20 @@
 The first goal is to write up notes from MCMC topics course.  The second goal is to see if it can be turned into a sensible book.  The intendend audience consists of researchers bew to MCMC theory (as opposed to Markov chain theory), for example, third-year PhD students.
 
 * Monte Carlo
+ * Introduction
   * Motivating examples
-  * Monte Carlo method
-  * MC sample size versus sample size
-  * Theory of Monte Carlo
+ * Monte Carlo method
   * Producing a sample  
+    * Inversion
     * Accept-Reject
     * Ratio of Uniforms
     * Linchpin Variables
+  * Estimation Theory for Monte Carlo
+    * Monte Carlo Estimation
+    * Monte Carlo Error
+    * Generalized Monte Carlo Error
+    * Confidence Regions
+  * Exercises
  
 * Markov Chain Monte Carlo
   * Markov Chains
