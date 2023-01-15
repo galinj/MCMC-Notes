@@ -17,6 +17,7 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{verbatim}
+\usepackage{subfig}
 
 \theoremstyle{plain}
 \newtheorem{thm}{Theorem}[section]
@@ -99,7 +100,7 @@ $\theta$ often include the following.
 \[
 \mu_h = E_{F}[h(X)] = \int_{\sX} h(x) F(dx) \; .
 \]
-This notation is used throughout and allows us to avoid having
+This notation is used throughout so as to avoid having
 separate formulas for the continuous case where it denotes $\mu_{h} =
 \int_{\sX} h(x) f(x) dx$ and the discrete case where it denotes
 $\mu_{h} = \sum_{x \in \sX} h(x) f(x)$.
@@ -273,7 +274,7 @@ hence $\theta_m$ will be more valuable if a measure of the
 Monte Carlo error is included. 
 
 \textit{Monte Carlo sample size} is used to mean the size of the
-simulation effort and it will be denoted $m$ while $n$ will be used to
+simulation effort and  will be denoted $m$ while $n$ will be used to
 denote the sample size associated with the original statistical
 setting.  A couple of examples may help illuminate the difference.
 
@@ -314,7 +315,8 @@ the asymptotics are as the Monte Carlo sample size $m$ increases.
 Typically, the observed data sample size $n$ is treated as fixed and
 known, but there are situations where it makes more sense to let $n$
 increase to infinity while fixing $m$ or let $m$ and $n$ increase
-simultaneously. These last two settings will not be addressed further.
+simultaneously. These last two settings will not be addressed further
+in tis chapter.
 
 \subsection{Producing a random sample}
 \label{gofmc:sec:Producing}
@@ -334,7 +336,9 @@ random often will not be useful here.
 This section considers some basic ways of obtaining a random sample
 from (non-uniform) $F$, including inversion, ratio of uniforms, the
 accept-reject algorithm, and linchpin variable sampling.  This
-presentation is not in any way intended to be comprehensive.
+presentation is not in any way intended to be comprehensive and the
+interested reader may consult many other texts for a more thoruroough
+treatement \cite[e.g.][]{devr:1986, fish:1996, robe:case:2004}.
 
 \subsubsection{Inversion} 
 Define $F^{-1} : (0,1) \to \mathbb{R}$ by
@@ -613,7 +617,7 @@ f(\beta | y) \propto \left(1 + \frac{\lambda \|\beta\|_{1} + \|y-
     X\beta \|_{2}^{2}}{2b}\right)^{-(a + p + n/2)} \, . 
 $$
 In principle, one can construct an accept-reject sampler for sampling
-form the marginal of $\beta|y$ when $X$ is full rank.  However, the
+from the marginal of $\beta|y$ when $X$ is full rank.  However, the
 method is so inefficient as to be useless.  Moreover, in situations
 where the lasso may be useful $X$ is often not of full rank or $p$ is
 large so that this linchpin variable sampler is not useful.
@@ -664,6 +668,255 @@ and, with probability 1,
 \label{gofmc:eq:quantile convergence}
 \xi_{n,q} \to \xi_q ~~~\text{ as } ~~ m \to \infty\, .
 \end{equation}
+
+\subsubsection{Monte Carlo Error}
+
+An obvious questions is when should the simulation terminate?  That
+is, when is $\theta_m$ a ``good'' estimate of $\theta$?
+
+In estimating $\theta$ with $\theta_m$, even for large values of the
+Monte Carlo sample size, $m$, there will be an unknown Monte Carlo
+error, $\theta_{m} - \theta$. Thus $\theta_{m}$ will be more valuable
+if there is a measure of its accuracy and it is reported.  This can be
+accomplished with an interval estimator if $\theta_m - \theta$ through
+its approximate sampling distribution. The interval estimator will
+allow assessment of the Monte Carlo error in the sense that it can
+describe the confidence in the number of significant figures reported.
+For example, suppose $\theta_{1000}=123.45$.  Then there are 5
+significant figures reported in the estimate. But suppose that
+$100(1-\alpha)$\% interval estimate is $[122.01,~124.91]$ so at the
+chosen confidence level only two of the five reported
+significant figures are trusted since values such as $\theta=122$ or $\theta=125$
+would be plausible upon rounding.  If this is not a sufficient level
+of precision this would prompt increasing the Monte Carlo sample
+size.
+
+Consider the estimators $\mu_m$ and $\xi_{q,m}$; the general case will
+be consideredlater. If $\mu_m$ estimates
+an expectation $\mu_h$, then a central limit theorem (CLT) holds under
+classical conditions: If $E_{F} [h^{2}(X)] < \infty$, then, as $m \to
+\infty$,
+\begin{equation}
+\label{gofmc:eq:iid clt}
+\sqrt{n}(\mu_{m} - \mu_{h}) \stackrel{d}{\to} \text{N}(0,var_{F}[h(X)])
+\; .
+\end{equation}
+Moreover, $var_{F}[h(X)]$ can be consistently estimated with the sample
+variance
+\[
+S_{m}^{2} = \frac{1}{m-1} \sum_{i=0}^{m-1} [ h(X_{i}) - \mu_{m}]^{2}
+\] 
+and consequently it is easy to calculate a \textit{Monte Carlo
+  standard error} (MCSE), $s_{m} / \sqrt{m}$.  An MCSE can be used to
+produce a $100(1-\alpha)$\% confidence interval for the unknown value
+$\mu_{h}$ in the usual way: if $t_{m-1, \alpha/2}$ denotes a quantile
+from a Student's $t$ distribution with $n-1$ degrees of freedom, then
+\[
+\mu_{m} \pm t_{n-1, \alpha/2} \frac{s_{n}}{\sqrt{m}}\, .
+\]
+The width of the interval then conveys an idea of the accuracy of the
+Monte Carlo approximation--that is, how many significant figures can
+be trusted.
+
+Now consider estimating the quantile $\xi_{q}$ with the sample
+quantile $\xi_{m,q}$.  Under the standing assumptions on $F$, as
+$m \to \infty$,
+\[
+\sqrt{m}( \xi_{q,m} - \xi_{q}) \stackrel{d}{\to} \text{N}(0,
+q(1-q)/f(\xi_{q})^{2}) \; . 
+\]
+Hence constructing a confidence interval for $\xi_{q}$ will require
+estimation of $f(\xi_{q})$.  If $f$ can be evaluated, then $f(\xi_{m,
+  q})$ would suffice.  Otherwise ome would need to estimate the density
+at the  point  $\xi_{n, q}$ to obtain $\hat{f}(\xi_{m, q})$.  A 
+ $100(1-\alpha)$\% confidence interval for the unknown value
+$\xi_q$ in the usual way: if $z_{\alpha/2}$ denotes a quantile
+from a standard normal distribution, then
+\[
+\xi_{q,m} \pm z_{\alpha/2} \frac{q(1-q)}{\hat{f}(\xi_{m, q})}\, .
+\]
+
+% Why a 90\% confidence interval?  There is nothing special about
+% 90\%.  This is another parameter that must be chosen by the
+% practitioner. In a problem where only a rough answer is required,
+% then smaller Monte Carlo sample sizes and 80\% confidence intervals
+% are sufficient.  But in problems where precision is important, then
+% larger Monte Carlo sample sizes and 99\% confidence intervals will
+% be needed.
+
+%\subsubsection{Stopping Rules}
+
+\subsubsection{Generalized Monte Carlo Error}
+The typical Monte Carlo experiment is multivariate in two directions.
+That is, the sample $X_1, \ldots, X_m$ consists of $d$-dimensional
+random vectors while the goal is to estimate several, say $p$,
+features of $F$.
+
+For definiteness we will suppose $h : \sX \to \real^p$ for some
+$p \ge 1$ so that $\mu_n$ is a $p$-dimensional vector. Of course, if
+$h$ is the identity mapping then $p=d$, but in general the relative
+size of $d$ and $p$ is context dependent.  Let $Y_j = h(X_j)$. As long
+as the Monte Carlo sample size satisfies $m > p$, describing the
+variability in the sample is based on the sample covariance matrix
+\begin{equation*}
+S_m = \frac{1}{m-1} \sum_{j=1}^{m} (Y_{j} - \mu_m)(Y_{j} -
+\mu_m)^{T} \; .
+\end{equation*}
+Then the \textit{mean-centered ellipsoid of concentration} is defined by
+\begin{equation}
+\label{gofmc:eq:ellipsoid of concentration}
+E_k=\{ y \, : \, (y - \mu_m)^T S_m^{-1} (y - \mu_m) \le k^2 \}
+\end{equation}
+and consists of the points which are $k$ units from the sample mean in
+squared Mahalanobis distance.  The ellipsoid will have axes oriented
+along the eigenvectors of $S_m$ having lengths proportional to the
+corresponding eigenvalues.
+
+Notice that $E_k$ will allow investigation of the bivariate marginals
+insofar as $\mu_m$ and $S_m$ allow. For example, if the sample is
+approximately normally distributed and $k^2 = \chi^2_2 (\alpha)$, then
+the ellipse will contain approximately $\alpha \%$ of the sample
+points. Consider the following two examples whose results are plotted
+in Figure~\ref{gofmc:fig:bnorm_and_jh2001_combined}.
+
+\begin{example} \label{gofmc:ex:bnorm}
+Consider a bivariate normal distribution, specifically $\text{N}_2 (\mu, \Sigma)$ with $\mu=(1,1)^T$ and 
+$$
+\Sigma = 
+\begin{pmatrix}
+1 & -.5 \\
+-.5 & 2
+\end{pmatrix} \, .
+$$
+Simulation from this target distribution is easily accomplished with
+standard software.
+\end{example}
+
+\begin{example} \label{gofmc:ex:jh2001}
+Suppose $Y_{1},\ldots,Y_{m} \sim \text{N}(\mu, \theta)$ and suppose
+the prior on $(\mu, \theta)$ is proportional to $1/\sqrt{\theta}$. The
+posterior density $q(\mu, \theta | y) $ is proper if $m \ge 3$.  In
+exercise~\ref{gofmc:hw:jh2001} a linchpin variable sampler is
+described and we implement it here. 
+\end{example}
+
+\begin{figure}
+\centering
+\subfloat{
+\includegraphics[width=3.5in,height=3.5in]{figures/unnamed-chunk-14-1} 
+}
+\subfloat{
+\includegraphics[width=3.5in,height=3.5in]{figures/unnamed-chunk-15-1} 
+}
+\caption{Ellipse of concentration with major and minor axes for two
+  examples where the ellipse is formed  by taking
+  $k=\chi^2_2(.4)$. Left: A plot of 100 samples from the bivariate
+  normal model in Example~\ref{gofmc:ex:bnorm}. Notice that 38
+  observations are in the ellipse.  Right: A plot of 100 samples from
+  the posterior in Example~\ref{gofmc:ex:jh2001}.   Notice that 68
+  observations are in the ellipse.} 
+\label{gofmc:fig:bnorm_and_jh2001_combined}
+\end{figure}
+
+While ellipsoids of concentration are especially useful in two
+dimensions, in general it is helpful to have univariate summaries of
+the variability in the $Y_j$.  Two such summaries are total sample
+variance and generalized variance. The total sample variance is
+defined as $\text{trace}(S_m)$, that is, the sum of the diagonal
+elements of $S_n$.  The generalized sample variance is
+$\text{det}(S_n)$, which is proportional to the hypervolume of the
+$p$-dimensional ellipsoid of concentration, $E_k$, since 
+$$
+\text{Volume}(E_k) = \frac{2\pi k^p \Gamma(p/2)}{p}\, \text{det}(S_m)^{1/2} \; . 
+$$
+Despite the appealing geometrical interpretation  of generalized
+variance neither it nor the total sample variance tell the entire
+story.  An examination of the ordered sample eigenvalues, say
+$\hat{\lambda}_1, \ldots, \hat{\lambda}_p$, of $S_m$ is advised since
+the total sample variance can be expressed as 
+$$
+\text{trace}(S_m) = \sum_{i=1}^{p} \hat{\lambda}_i
+$$
+while generalized variance may be expressed as
+$$
+\text{det}(S_m) = \prod_{i=1}^{p} \hat{\lambda}_i \, .
+$$
+Thus the total sample variance may be large due to one large
+eigenvalue, while generalized variance may be small due to one tiny
+eigenvalue.
+
+\subsubsection{Confidence Regions}
+\label{gofmc:sec:multivariate confidence regions}
+Using univariate confidence intervals would require adjustment for
+multiplicity, perhaps a Bonferroni correction.  Adjusting individual
+confidence intervals can work well when $p$ is small, but will be
+overly conservative if $p$ is even somewhat large.  Indeed smaller
+regions are possible even when $p=2$. Also, the use of rectangular
+confidence regions ignores the correlation between components.  The
+Monte Carlo estimation process can be better understood by using an
+explicit multivariate approach.
+
+Assume the Monte Carlo sample size is larger than the number of
+estimands, that is, $m > p$.  Using a Cram{\' e}r-Wold device argument
+yields a multivariate CLT as in \eqref{gofmc:eq:iid clt}, that is, as
+$m \to \infty$,
+\begin{equation}
+\label{gofmc:eq:multi iid clt}
+\sqrt{n}(\mu_m - \mu_h) \stackrel{d}{\to} \text{N}_{p}(0, V)
+\end{equation}
+where $V=var_{F}[h(X)]$ is a $p \times p$ positive definite matrix
+which can be estimated with the sample covariance
+\begin{equation*}
+S_m = \frac{1}{m-1} \sum_{j=1}^{m} (h(X_{j}) - \mu_m)(h(X_{j} -
+\mu_m)^{T} \; .
+\end{equation*}
+Then a confidence region for $\mu_h$ is defined by the ellipsoid
+$$
+m(\mu_m - \mu_h)^T S_m^{-1} (\mu_m - \mu_h) \le k^2
+$$
+and $k$ is chosen to ensure a desired coverage probability.  More
+specifically, if $k^2 =\chi^2_{p, 1-\alpha}$, then the ellipsoid will
+have approximate coverage probability $1-\alpha$. If
+$\lambda_{i}, \ldots, \lambda_{p}$ are the eigenvalues of $S_m$, then
+the ellipsoidal region is oriented along axes determined by the
+corresponding eigenvectors and whose lengths are proportional to
+$\sqrt{\lambda_{i}}$.
+
+The volume of the confidence ellipsoid is given by
+$$
+\frac{2 \pi^{p/2} k^p}{p \Gamma(p)} \left[ \frac{\det(S)}{m}
+\right]^{1/2}\; . 
+$$
+Then $\det{S}$ is the \textit{generalized variance} of the Monte Carlo
+error. While $\det(S)$ is a useful univariate summary it can give an
+incomplete picture of the nature of Monte Carlo error.  Recall that
+$\det(S)=\lambda_1 \cdots \lambda_p$ so a small generalized variance
+can be achieved with one tiny eigenvalue. Thus examination of the
+sample eigenvalues is advised in applications.
+
+%%%%%
+\begin{comment}
+\subsubsection{Multivariate Stopping Rules}
+\label{gofmc:sec:mstop}
+The obvious extension of the univariate approach to controlling the width
+of a confidence interval is to control the volume of the confidence
+ellipsoid which, letting $\det$ denote determinant, is given by
+$$
+\frac{2 \pi^{p/2} k^p}{p \Gamma(p)} \det(S)^{1/2}\; .
+$$
+We call $\det{S}$ the \textit{generalized variance} of the Monte Carlo
+error. While $\det(S)$ is a useful univariate summary it can give an incomplete
+picture of the nature of Monte Carlo error.   Recall that
+$\det(S)=\lambda_1  \cdots \lambda_p$ so a small generalized variance
+can be achieved with one tiny eigenvalue. Thus examination of the
+sample eigenvalues is advised in applications.
+
+Other useful approaches include standardization to adjust for the
+marginal variation in the simulation and for the number of quantities
+being estimated.  These options are explored in the exercises.
+\end{comment}
+%%%%%
+
 
 
 \section*{Exercises}
@@ -787,7 +1040,7 @@ Recall Example~\ref{gofmc:ex:rosenthal}.
 \item Verify the expressions given for $f(\theta| \mu, \lambda, y)$,
   $f(\mu | \lambda, y)$, and  
 $f(\lambda |y)$. 
-\item Consider the data in the table~\ref{gofmc:tab:rosenthal}.
+\item Consider the data in the following table.
 \begin{table}
 \begin{center}
 \begin{tabular}{ccccc} 
@@ -798,7 +1051,6 @@ $f(\lambda |y)$.
 0.5799192 & 2.4626378 & -1.0220088 & 1.5830721 & -0.7893418 \\
   \hline
 \end{tabular}
-\label{gofmc:tab:rosenthal}
 \end{center}
 \end{table} 
 Implement an accept-reject sampler with an $\text{IG}(b,c)$ proposal
