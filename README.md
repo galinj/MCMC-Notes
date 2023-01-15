@@ -4,13 +4,13 @@ The first goal is to write up notes from MCMC topics course.  The second goal is
 
 * Monte Carlo
   * Introduction
-   * Motivating examples
+    * Motivating examples
   * Monte Carlo method
-   * Producing a sample  
-    * Inversion
-    * Accept-Reject
-    * Ratio of Uniforms
-    * Linchpin Variables
+    * Producing a sample  
+      * Inversion
+      * Accept-Reject
+      * Ratio of Uniforms
+      * Linchpin Variables
   * Estimation Theory for Monte Carlo
     * Monte Carlo Estimation
     * Monte Carlo Error
