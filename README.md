@@ -3,10 +3,10 @@
 The first goal is to write up notes from MCMC topics course.  The second goal is to see if it can be turned into a sensible book.  The intendend audience consists of researchers bew to MCMC theory (as opposed to Markov chain theory), for example, third-year PhD students.
 
 * Monte Carlo
- * Introduction
-  * Motivating examples
- * Monte Carlo method
-  * Producing a sample  
+  * Introduction
+   * Motivating examples
+  * Monte Carlo method
+   * Producing a sample  
     * Inversion
     * Accept-Reject
     * Ratio of Uniforms
