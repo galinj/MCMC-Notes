@@ -90,6 +90,20 @@ When $\X$ is a discrete set a Markov kernel can be represented as a
 square matrix whose entries are nonnegative and whose rows sum to 1.
 
 \begin{example}
+  Suppose
+  \[
+    P= \begin{pmatrix}
+      1/2 & 1/2 \\
+      1/3 & 2/3\\
+      \end{pmatrix}
+  \]
+  Then $P$ is  a Markov matrix on two states $\{0, 1\}$, say.  The
+  first row for example, is interpreted as
+  the probability of moving in one step from state 0 to state 0 is 1/2
+  which is the same as the probability of moving in one step from state 0 to start 1.
+ \end{example}
+
+\begin{example}
   Let $\X=\mathbb{Z}$ and let $0 < \theta < 1$.  If $x \ge 1$, then a
   Markov kernel is defined by the matrix $P$ with elements
   \[
@@ -123,23 +137,98 @@ P(x, B) = \int_{B} k(y \mid x) \df y
 \]
 then say $k$ is a {\em Markov transition density}.
 
-Suppose $\lambda$ is a probability measure on $(\X, \B)$,  define
+\begin{example}
+  \label{mcmc:ex:2varGS}
+Suppose $f(x,y)$ is a joint density with support $\mathbb{R}^2$ and
+conditional densities $f_{X \mid Y}(x \mid y)$ and $f_{Y \mid X}(y
+\mid x)$.  Then
 \[
-\lambda P(B) = \int_{\X} \lambda(\df x) P(x, B) .
+  k(x', y' \mid x, y) = f_{X \mid Y}(x' \mid y) f_{Y \mid X}(y' \mid x')
 \]
-Since the encouraged interpretation is that $X_{n+1} \mid X_{n} \sim
-P(X_{n}, \cdot)$ and $X_{n} \sim \lambda$ the product $\lambda(\df x)
-P(x, \cdot)$ is the joint distribution of $(X_n, X_{n+1})$ and
-$\lambda P$ is the marginal distribution of $X_{n+1}$.
+is a Markov transition density.  The Markov chain evolves from
+$(X_k = x, Y_k =y)$ to $(X_{k+1}, Y_{k+1})$ by drawing
+$X_{k+1} \sim F_{X \mid Y} (\cdot \mid y)$ followed by
+$Y_{k+1} \sim F_{Y \mid X}(\cdot \mid X_{k+1})$.  This is a special
+case of the so-called two-variable Gibbs sampler.
+\end{example}
+
+
+Suppose $\lambda$ is a positive measure on $(\X, \B)$,  define
+\begin{equation}
+  \label{mcmc:eq:left}
+\lambda P(B) = \int_{\X} \lambda(\df x) P(x, B) .
+\end{equation}
+When $\lambda$ is a probability measure, the encouraged interpretation
+is that $X_{n+1} \mid X_{n} \sim P(X_{n}, \cdot)$ and
+$X_{n} \sim \lambda$, the product $\lambda(\df x) P(x, \cdot)$ is the
+joint distribution of $(X_n, X_{n+1})$ and $\lambda P$ is the marginal
+distribution of $X_{n+1}$.
+
+Since Markov kernels act to the left on measures~\eqref{mcmc:eq:left},
+\[
+P^2(x, B) = \int_{\X} P(x, \df x_k) P(x_k, B) .
+\]
+Continuing in this fashion obtain for every $n \ge 2$
+\[
+P^n(x, B) \int_{\X} P(x, \df x_k) P(x_k, \df x_{k+1}) \cdots P(x_{k +
+  n -2}, B) .
+\]
+More generally, the so-called Chapman-Kolmogorov equations hold for $n
+\ge m \ge 0$
+\[
+P^n(x, B) \int_{\X} P^m(x, \df y) P^{n-m} (y, B) .
+\]
 
 If $\lambda = \lambda P$, then $\lambda$ is {\em invariant} for $P$.
+Notice that if $\lambda$ is invariant for $P$ and $X_n \sim \lambda$,
+then $X_{n+1} \sim \lambda$.  That is, the marginal distribution does
+not depend upon $n$ in which case the Markov chain is {\em
+  stationary}.
+
+\begin{example}
+  \end{example}
+
+\begin{example}
+  Recall the Markov chain defined in Example~\eqref{mcmc:ex:2varGS}
+\end{example}
+
+
+One common way of establishing invariance of MCMC Markov chains is to
+verify a {\em detailed balance condition}; see
+Exercise~\ref{mcmc:hw:dbc}.  Detailed balance holds if
 \begin{equation}
    \label{mcmc:eq:dbc}
    \lambda(\df x) P(x, \df y) = \lambda(\df y) P(y, \df x). 
  \end{equation}
-Integrating both sides of equation~\ref{mcmc:eq:dbc} shows that it implies
-$\lambda$ is invariant for $P$.
+ When $\lambda$ is a probability measure, one interpretation is that
+ the joint distribution of $(X_k, X_{k+1})$ is the same as the
+ distribution of $(X_{k+1}, X_{k})$ so that this is also often called
+ the {\em reversibility condition}.  Another name often encountered is
+ that $P$ is {\em $\lambda$-symmetric}.
 
+ \subsection{Stability}
+ \label{mcmc:sec:stability}
+ Most MCMC applications are constructed so that a specific probability
+ distribution $F$ is invariant.  However, in applications where MCMC is
+ required it is typically difficult to simulate from the invariant
+ distribution.  The most that can be hoped for is that the simulation
+ will eventually produce a representative sample from $F$.  This
+ long-run behavior is in no way guaranteed.
+
+ \begin{example}
+   \label{mcmc:ex:detmc}
+   Suppose $F$ lives on $\{ 1, 2\}$ with $F(1) = 1 - F(2) = 1/4$ and
+   \[
+     P = \begin{pmatrix}
+       0 & 1 \\
+       1 & 0 \\
+       \end{pmatrix}
+   \]
+   Since the Markov chain moves deterministically between the two
+   states, it will over represent state 1 and underrepresent state 2
+   no matter how many iterations there are.
+ \end{example}
+ 
 
 
 \section{Metropolis-Hastings}
@@ -148,6 +237,17 @@ $\lambda$ is invariant for $P$.
 
 \section*{Exercises}
 \addcontentsline{toc}{section}{Exercises}
+\begin{hw}
+  \label{mcmc:hw:dbc}
+Prove that if Equation~\ref{mcmc:eq:dbc} holds, then $\lambda$ is
+invariant for $P$.
+\end{hw}
+
+\begin{hw}
+Whta is the invariant distribution of the Markov chain defined in
+Example~\ref{mcmc:ex:detmc}?
+\end{hw}
+
 
 \newpage
 
