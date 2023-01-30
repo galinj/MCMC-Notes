@@ -40,6 +40,7 @@ The first goal is to write up notes from MCMC topics course.  The second goal is
     * CLT (Means, quantiles, and combo)
     * Mixing Processes
     * Rates of Convergence
+    * Upper and Lower Bounds
     * Comparison Theorems
   * Establishing Geometric Ergodicity
     * Drfit and Minorization
