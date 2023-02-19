@@ -72,7 +72,7 @@ designing algorithms that produce useful observations and (2) using
 these observations to estimate features of the given distribution.
 
 The simulated data can be a random sample as in classical Monte
-Carlo\footnote{``Classical Monte Carlo'' is a cumbersome phrase so
+Carlo\footnote{``Classical Monte Carlo'' is cumbersome so
   ``Monte Carlo'' will be used instead.  Hopefully, this will not
   cause confusion as ``Monte Carlo'' is often used as shorthand for
   ``Monte Carlo method''.} or a realization of a Markov chain as in
@@ -136,7 +136,7 @@ expectation.  If $f$ is a pdf on $(0,1)$, then
 \end{align*}
 \end{example}
 
-The example also makes the point that any expectation can be converted
+The example also makes the point that an expectation can be converted
 to an expectation with respect to a different distribution, say $G$
 having pf $g$ and support containing $\sX$:
 
@@ -156,7 +156,7 @@ $i=1, \ldots, m$. Let $y$ denote all of the observed data and assume
 $\beta \sim \text{N}_{p}(0, I_{p})$ so that the posterior is
 characterized by
 \[
-q(\beta |y) \propto \left[ \prod_{i=1}^{n} \frac{e^{-y_i x_i^T
+q(\beta \mid y) \propto \left[ \prod_{i=1}^{n} \frac{e^{-y_i x_i^T
       \beta}}{1+ e^{- x_i^T \beta}}\right] e^{- \frac{1}{2} \beta^T
   \beta} \; .
 \]
@@ -169,14 +169,16 @@ m(y) = \int \left[ \prod_{i=1}^{n} \frac{e^{-y_i x_i
 which is analytically intractable. A typical goal is to calculate the
 posterior mean of $\beta$:
 \[
-\mu_{\beta} = E_q [\beta | y] = \int_{\real^p} \beta \,q(\beta|y)\,
+\mu_{\beta} = E_q [\beta \mid  y] = \int_{\real^p} \beta \,q(\beta
+\mid y)\,
 d\beta \; .
 \]
 Posterior inference also often requires expectations of other
 functions $h(\beta)$, such as second moments, so the general goal is
 calculation of
 \[
-\mu_{h} =  E_q [h(\beta) | y] = \int_{\real^p} h(\beta) \,q(\beta|y)\,
+\mu_{h} =  E_q [h(\beta) \mid  y] = \int_{\real^p} h(\beta) \,q(\beta
+\mid y)\,
 d\beta \; .
 \]
 Posterior credible intervals can also be based on quantiles.  For
@@ -194,8 +196,8 @@ $$
 \begin{example}[Bayesian Linear Model]
 Suppose that, for $i=1,\ldots,k$ and $j=1,\ldots,m_i$,
 \begin{align*}
-Y_{ij} | \tau_i, \lambda_e & \sim \text{N}(\tau_{i}, \lambda_e^{-1})\\
-\tau_{i} | \mu, \lambda_e & \sim \text{N}(\mu, \lambda_t^{-1})\\
+Y_{ij} \mid \tau_i, \lambda_e & \sim \text{N}(\tau_{i}, \lambda_e^{-1})\\
+\tau_{i} \mid  \mu, \lambda_e & \sim \text{N}(\mu, \lambda_t^{-1})\\
 \mu &\sim \text{N}(m_0, s_0^{-1}) \\
 \lambda_e &\sim \text{Gamma}(a_1,
 b_1) \\
@@ -204,21 +206,21 @@ b_1) \\
 Letting $y$ denote all of the observed data and $\tau$ denote all of the
 $\tau_i$, the posterior distribution is characterized by
 \[
-q(\tau, \mu, \lambda_e, \lambda_t | y) \propto f(y|\tau,
-\lambda_e) f(\tau | \mu, \lambda_t) f(\mu) f(\lambda_e) f(\lambda_t)
+q(\tau, \mu, \lambda_e, \lambda_t \mid y) \propto f(y\mid\tau,
+\lambda_e) f(\tau \mid \mu, \lambda_t) f(\mu) f(\lambda_e) f(\lambda_t)
 \; .
 \]
 The normalizing constant or marginal density of $y$ is
 \[
-m(y) = \int f(y|\tau,
-\lambda_e) f(\tau | \mu, \lambda_t) f(\mu) f(\lambda_e) f(\lambda_t)\,
+m(y) = \int f(y\mid\tau,
+\lambda_e) f(\tau \mid \mu, \lambda_t) f(\mu) f(\lambda_e) f(\lambda_t)\,
 d\tau\, d\mu\, d\lambda_e \, d\lambda_t \; ,
 \]
 and is analytically intractable. Interest often centers on posterior
 expectations and quantiles.  For example,
 \[
-\mu_{\tau}=E_q[\tau |y] = \int \tau q(\tau | y)\,d\tau = \int \tau \, q(\tau, \mu, \lambda_e,
-\lambda_t |y) \, d\mu \, d\lambda_e \, d\lambda_t \, d\tau \; .
+\mu_{\tau}=E_q[\tau \mid y] = \int \tau q(\tau \mid y)\,d\tau = \int \tau \, q(\tau, \mu, \lambda_e,
+\lambda_t \mid y) \, d\mu \, d\lambda_e \, d\lambda_t \, d\tau \; .
 \]
 Because $m(y)$ is unavailable to us, analytical evaluation of
 posterior expectations or quantiles is unavailable.
@@ -234,12 +236,13 @@ Let
 \[
 p(\beta, u) = \frac{e^{\beta + u}}{1 + e^{\beta + u}}\, .
 \]
-Suppose $Y | u, \beta \sim \text{Bernoulli}(p(\beta, u))$ and $U|\lambda
+Suppose $Y \mid u, \beta \sim \text{Bernoulli}(p(\beta, u))$ and $U
+\mid \lambda
 \sim \text{N}(0, \lambda)$.
 
 Then the likelihood is
 $$
-L(\beta, \lambda)  = \int_{-\infty}^{\infty} f(y|u, \beta) f(u | \lambda) \, du 
+L(\beta, \lambda)  = \int_{-\infty}^{\infty} f(y\mid u, \beta) f(u \mid \lambda) \, du 
  =\frac{1}{\sqrt{2 \pi \lambda}} \int_{-\infty}^{\infty}
 \frac{e^{\beta + u}}{(1 + e^{\beta + u})^2} e^{- \frac{1}{2\lambda}
   u^2}\, du \; .
@@ -248,10 +251,9 @@ Now $L(\beta, \lambda)$ can be written as an expectation: let $G$ be
 a distribution having density $g$ on $\mathbb{R}$ so that
 \[
 \begin{split}
-L(\beta, \lambda) & = \int_{-\infty}^{\infty} \frac{f(y|u, \beta) f(u
+L(\beta, \lambda) & = \int_{-\infty}^{\infty} \frac{f(y\mid u, \beta) f(u
   | \lambda)}{g(u)} g(u) \, du \\
-& = E_{G}\left[  \frac{f(y|u, \beta) f(u
-  | \lambda)}{g(u)} \right] \; .
+& = E_{G}\left[  \frac{f(y \mid u, \beta) f(u \mid \lambda)}{g(u)} \right] \; .
 \end{split}
 \]
 Since the likelihood can be expressed as an expectation Monte Carlo
@@ -280,7 +282,7 @@ setting.  A couple of examples may help illuminate the difference.
 
 \begin{example}
   Suppose $Y_1,Y_2, Y_3$ are iid Poisson($\lambda$) and $\lambda \sim
-  \text{Gamma}(2,3)$.  Then the posterior is $\lambda| y_1, y_2, y_3
+  \text{Gamma}(2,3)$.  Then the posterior is $\lambda \mid y_1, y_2, y_3
   \sim \text{Gamma}(3\bar{y} + 2, 6)$, where $\bar{y}$ is the sample
   mean of the three observations.  There is no simple closed form for
   the median of the posterior, but simulation can be used to estimate
@@ -519,7 +521,7 @@ be converted to simulating from a simpler distribution.  Suppose $f$
 can be expressed as a product of a conditional pf $f_{X \mid Y}$ and
 a marginal pf $f_{Y}$ so that
 \[
-f(x, y) = f_{X \mid Y}(x|y) f_{Y}(y)
+f(x, y) = f_{X \mid Y}(x\mid y) f_{Y}(y)
 \]
 If sampling from $f_{X \mid Y}$ is straightforward, then say $Y$ is a
 {\em linchpin variable}.
@@ -539,21 +541,21 @@ sampling from the joint $F$.
 \begin{example}
 \label{gofmc:ex:pump failure}
 For $i=1, \ldots, n$ assume $t_i > 0$ is known and let
-$Y_{i} | \lambda_i \stackrel{ind}{\sim} \text{Poisson}(t_i
+$Y_{i} \mid \lambda_i \stackrel{ind}{\sim} \text{Poisson}(t_i
 \lambda_i)$.  Assume priors
 $\lambda_i \stackrel{ind}{\sim} \text{Gamma}(a, \beta)$ and
 $\beta \sim \text{Gamma}(c, d)$ with $a$, $c$, and $d$ known positive
 constants. The posterior is characterized by
 $$
-f(\beta, \lambda |y) \propto \left( \prod_{i=1}^{n} \lambda_{i}^{a +
+f(\beta, \lambda \mid y) \propto \left( \prod_{i=1}^{n} \lambda_{i}^{a +
     y_i - 1} e^{-(\beta+ t_i)\lambda_i}\right) \beta^{an+c-1}
 e^{-\beta d} \; .
 $$
 By inspection the conditionals
-$\lambda_i | \beta \stackrel{ind}{\sim} \text{Gamma}(a+y_i, \beta +
+$\lambda_i \mid \beta \stackrel{ind}{\sim} \text{Gamma}(a+y_i, \beta +
 t_i)$ and the marginal pf for $\beta$ is characterized by
 $$
-f(\beta | y) \propto \beta^{an+c-1} e^{-\beta d} \left( \beta + t_i
+f(\beta \mid y) \propto \beta^{an+c-1} e^{-\beta d} \left( \beta + t_i
 \right)^{-(a+y_i)} \; .
 $$
 Thus $\beta$ is a linchpin variable. See exercise~\ref{gofmc:hw:pump
@@ -564,23 +566,23 @@ marginal.
 \begin{example} \label{gofmc:ex:rosenthal}
 For $i=1,\ldots, K$ suppose that for known $a, b, c > 0$,
 \begin{align*}
-Y_i | \theta_i  \sim  \text{N}(\theta_i, a) ~~&~~~~~ \theta_i | \mu, \lambda \sim  \text{N}(\mu, \lambda)\\
+Y_i \mid \theta_i  \sim  \text{N}(\theta_i, a) ~~&~~~~~ \theta_i \mid \mu, \lambda \sim  \text{N}(\mu, \lambda)\\
 \lambda  \sim \text{IG}(b, c) ~~&~~~~~  f(\mu)  \propto 1 \, .
 \end{align*}
-Then the hierarchy yields a proper posterior $f(\theta, \mu, \lambda |
+Then the hierarchy yields a proper posterior $f(\theta, \mu, \lambda \mid
 y)$ with $\theta=(\theta_1, \ldots, \theta_K)^T$ and $y=(y_1, \ldots,
 y_K)^T$.  Consider the factorization \cite[see][]{jone:hara:caff:neat:2006} 
 $$
-f(\theta, \mu, \lambda | y) = f(\theta | \mu, \lambda, y) f(\mu |
-\lambda, y) f(\lambda |y) \; . 
+f(\theta, \mu, \lambda \mid y) = f(\theta \mid \mu, \lambda, y) f(\mu \mid
+\lambda, y) f(\lambda \mid y) \; . 
 $$
-Then $f(\theta | \mu, \lambda, y)$ is the product of univariate normal
-densities $\theta_i | \mu, \lambda, y \sim \text{N}((\lambda y_i +
-a\mu)/(a+\lambda), \, a\lambda / (a + \lambda))$.  Now $f(\mu |
+Then $f(\theta \mid \mu, \lambda, y)$ is the product of univariate normal
+densities $\theta_i \mid \mu, \lambda, y \sim \text{N}((\lambda y_i +
+a\mu)/(a+\lambda), \, a\lambda / (a + \lambda))$.  Now $f(\mu \mid
 \lambda, y)$ is also a normal density $\text{N}(\bar{y},
 (a+\lambda)/K)$. Finally, 
 $$
-f(\lambda | y) \propto \frac{1}{\lambda^{b+1} (a + \lambda)^{(K-1)/2}}
+f(\lambda \mid y) \propto \frac{1}{\lambda^{b+1} (a + \lambda)^{(K-1)/2}}
 \exp\left\{ - \frac{c}{\lambda} - \frac{1}{2(a+\lambda)}
   \sum_{i=1}^{K} (y_i - \bar{y})^{2}\right\} \; . 
 $$
@@ -600,20 +602,20 @@ this.
   known $m \times p$ design matrix and assume $\lambda > 0$ is known.
   Assume $a, \, b >0$ are known and
 \begin{align*}
-Y|\beta, \gamma & \sim \text{N}_{m}(X\beta, \gamma^{-1}I_{m}) \\
-\nu(\beta|\gamma) & = \left(\frac{\lambda \gamma}{4}\right)^{p}
+Y\mid \beta, \gamma & \sim \text{N}_{m}(X\beta, \gamma^{-1}I_{m}) \\
+\nu(\beta\mid \gamma) & = \left(\frac{\lambda \gamma}{4}\right)^{p}
                     \exp\left\{ -\frac{\lambda \gamma}{2}
                     \|\beta\|_{1}\right\}\\ 
 \gamma & \sim \text{Gamma}(a,b) \, .
 \end{align*}
 This hierarchy gives rise to a posterior density which has conditional 
 $$
-\gamma | \beta, y \sim \text{Gamma} \left(p + a + \frac{n}{2}, \, b +
+\gamma \mid \beta, y \sim \text{Gamma} \left(p + a + \frac{n}{2}, \, b +
   \frac{\lambda \|\beta\|_{1} + \|y- X\beta \|_{2}^{2}}{2}\right) 
 $$
 and marginal
 $$
-f(\beta | y) \propto \left(1 + \frac{\lambda \|\beta\|_{1} + \|y-
+f(\beta \mid y) \propto \left(1 + \frac{\lambda \|\beta\|_{1} + \|y-
     X\beta \|_{2}^{2}}{2b}\right)^{-(a + p + n/2)} \, . 
 $$
 In principle, one can construct an accept-reject sampler for sampling
@@ -1000,7 +1002,7 @@ $$
 f_{X_1, X_2}(x_1, x_2) \propto \exp \left\{ -5(x_2 - x_{1}^{2})^{2} -
   \frac{1}{20} (x_1 - 1)^{2} \right\} \; . 
 $$
-Show that $X_1 \sim \text{N}(1,10)$ and $X_{2}|x_1 \sim
+Show that $X_1 \sim \text{N}(1,10)$ and $X_{2}\mid x_1 \sim
 \text{N}(x_{1}^2, 1/10)$. Use a linchpin variable approach to sample
 from the joint distribution and plot the results.   
 \end{hw}
@@ -1009,11 +1011,11 @@ from the joint distribution and plot the results.
 Recall Example~\ref{gofmc:ex:pump failure}.  
 \begin{enumerate}
 \item Verify the expressions given for the posterior conditional of
-  $\lambda_i |\beta, y$ and the posterior marginal $\beta |y$. 
+  $\lambda_i \mid \beta, y$ and the posterior marginal $\beta |y$. 
 \item If the observed data are $0, 0, 1, 0, 0, 2, 1, 1, 0, 0$, and
   $t_i =1$ for all $i$, implement an accept-reject sampler with a
   $\text{Gamma}(an+c , d)$ proposal distribution to sample from the
-  $\beta |y$ marginal.  How does the acceptance rate change as $d$
+  $\beta \mid y$ marginal.  How does the acceptance rate change as $d$
   changes? 
 
 \item Implement a linchpin variable sampler to estimate the posterior
@@ -1027,7 +1029,8 @@ Suppose $Y_{1},\ldots,Y_{n} \sim \text{N}(\mu, \theta)$ and suppose
 the prior on $(\mu, \theta)$ is proportional to $1/\sqrt{\theta}$. 
 \begin{enumerate}
 \item Show that the posterior is proper if $n \ge 3$.
-\item Show that $\mu | \theta, y \sim \text{N}(\bar{y}, \theta / n)$ and $\theta | y \sim \text{IG}(n/2, ns^{2} / 2)$.
+\item Show that $\mu \mid \theta, y \sim \text{N}(\bar{y}, \theta /
+  n)$ and $\theta \mid y \sim \text{IG}(n/2, ns^{2} / 2)$.
 \item Suppose $n=5$, $s^{2} = 2$ and $\bar{y}=1$.  Implement a
   linchpin variable algorithm to estimate the posterior mean and 85\%
   credible region for $\mu$.  
@@ -1038,8 +1041,8 @@ the prior on $(\mu, \theta)$ is proportional to $1/\sqrt{\theta}$.
 Recall Example~\ref{gofmc:ex:rosenthal}.  
 \begin{enumerate}
 \item Verify the expressions given for $f(\theta| \mu, \lambda, y)$,
-  $f(\mu | \lambda, y)$, and  
-$f(\lambda |y)$. 
+  $f(\mu \mid \lambda, y)$, and  
+$f(\lambda \mid y)$. 
 \item Consider the data in the following table.
 \begin{table}
 \begin{center}
