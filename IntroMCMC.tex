@@ -73,7 +73,7 @@ Later.
 \section{Markov Chains}
 \label{mcmc:sec:markov}
 
-Let $(\X, \mathcal{B})$ be a measurable space.  A sequence of
+Let $(\X, \B)$ be a measurable space.  A sequence of
 $\X$-valued random variables $\{X_1, X_2, X_3, \ldots \}$ is a Markov
 chain if for all $g$
 \[
@@ -208,12 +208,15 @@ Exercise~\ref{mcmc:hw:dbc}.  Detailed balance holds if
 
  \subsection{Stability}
  \label{mcmc:sec:stability}
-MCMC applications typically are constructed so that a specific probability
- distribution $F$ is invariant.  However, in applications where MCMC is
- required it is typically difficult to simulate from the invariant
- distribution.  The most that can be hoped for is that the simulation
- will eventually produce a representative sample from $F$.  This
- long-run behavior is in no way guaranteed without additional assumptions.
+ MCMC applications typically are constructed so that a specific
+ probability distribution $F$ is invariant.  However, in applications
+ where MCMC is required it is typically difficult to simulate from the
+ invariant distribution.  The most that can be hoped for is that the
+ simulation will eventually produce a representative sample from $F$.
+ This long-run behavior is in no way guaranteed without additional
+ assumptions. The following simple examples illustrate that the
+ problems can arise due to the either the way the kernel is specified
+ or the properties of the state space $\X$.
 
  \begin{example}
    \label{mcmc:ex:detmc}
@@ -228,6 +231,128 @@ MCMC applications typically are constructed so that a specific probability
    states, it will over represent state 1 and underrepresent state 2
    no matter how many iterations there are.
  \end{example}
+
+ \begin{example}
+Suppose $F$ lives on $\{ 1, 2,3\}$ with $F(1) =  F(2) = F(3) = 1/3$ and
+   \[
+     P = \begin{pmatrix}
+       1/2 & 1/2 & 0 \\
+       1/2 & 1/2 & 0\\
+       0 & 0 & 1
+       \end{pmatrix}
+     \]
+     Thus starting at state $\{3\}$ the chain remains there forever
+     while starting from $\{1, 2\}$ the chain will never visit
+     $\{3\}$.  Thus the chain cannot represent $F$ in the long run.
+ \end{example}
+ 
+
+ \begin{example}
+   \label{mcmc:ex:disc_Gibbs}
+Suppose for $i=1,2$, $f_i$ is a pf on $\X_i \subseteq \real$ and $g_i$
+is a pf on $\Y_i \subseteq \real$.
+Set
+\[
+f(x,y) = \frac{1}{2} f_1(x) g_1(y) + \frac{1}{2} f_2(x) g_2(y).
+\]
+Then
+\[
+f_{X \mid Y}(x \mid y) = \frac{f_1(x) g_1(y) + f_2(x) g_2(y)}{g_1(y) + g_2(y)}
+\]
+and
+\[
+f_{Y\mid X}(y \mid x) = \frac{f_1(x) g_1(y) + f_2(x) g_2(y)}{f_1(y) + f_2(y)}
+\]
+and the Gibbs sampler MTD is
+\[
+k(x', y' \mid x, y) = f_{X \mid Y}(x' \mid y) f_{Y\mid X}(y' \mid x') .
+\]
+When $\X_i = \Y_i = \real$ this Gibbs sampler will produce a
+representative sample eventually.  However, complications may arise if
+the spaces are constrained.
+
+Suppose $\X_1 = \X_2 = (0, 1)$ and that $f_1 = f_2$ is the
+Uniform density.  Let $Y_1 = (0, 1)$ and $Y_2 = (2, 3)$ and $g_1$
+and $g_2$ be Uniform densities.  Easy calculation yields that
+\[
+f_{X \mid Y} (x \mid y) = I(0 < x < 1) \left[ I(0 < y < 1) + I(2 < y <
+3)\right]
+\]
+and
+\[
+f_{Y \mid X}(y \mid x) = \frac{1}{2} I(0 < x < 1) \left[ I(0 < y < 1) + I(2 < y <
+3)\right]
+\]
+and that, no matter which square, $\X_1 \times \Y_1$ or $\X_2 \times
+\Y_2$,  the current state is in there is a positive probability of the
+next state being in either square.  This Gibbs sapler will eventually
+produce a representative sample.
+
+Now consider the setting with $\X_1 = \Y_1 = (0,1)$ and $\X_2 = \Y_2 =
+(2,3)$ so that
+\[
+f_{X \mid Y} (x \mid y) = \frac{I(0 < x < 1) I(0 < y < 1) + I(2 < x < 3)I(2 < y <
+3)}{I(0 < y < 1) + I(2 < y < 3)}
+\]
+and
+\[
+f_{Y \mid X} (y \mid x) = \frac{I(0 < x < 1) I(0 < y < 1) + I(2 < x < 3)I(2 < y <
+3)}{I(0 < x < 1) + I(2 < x < 3)}.
+\]
+If $ y \in (0,1)$, then $f_{X \mid Y} (x \mid y) =  I(0 < x <1)$ and,
+similarly, if $X \in (0,1)$, then $f_{Y \mid X} (y \mid x) = I(0 < y <
+1)$.  Thus if the current state is in the square $\X_1 \times \Y_1$,
+then the next step will be in $\X_1 \times \Y_1$.  That is, there is
+no chance for the chain to visit $\X_2 \times \Y_2$.  This Gibbs
+sampler will not produce a representative sample from the target
+distribution.
+\end{example}
+
+The above examples demonstrate that one way problems arise is when the
+Markov chain cannot access all of the space eventually and hence
+properties which avoid this are required.
+
+Let $\phi$ be a non-triviual positive measure on $\B$.  Then $A \in
+\B$ is {\em $\phi$-communicating} if for all $B \subseteq A$ such that
+$\phi(B) > 0$ and for all $x \in A$, there exists $n$ such that
+$P^n(x,B) >0$.
+
+This is a weak property that does not ensure desirable long run
+properties.  Consider the Gibbs sampler from
+Example~\ref{mcmc:ex:disc_Gibbs} with $\X_1 = \Y_1 = (0,1)$ and
+$\X_2 = \Y_2 = (2,3)$. If $\phi$ denotes Lebesgue measure, then this
+Markov chain is $\phi$-communicating but does not have desirable long
+run properties.
+
+The Markov kernel, $P$,  is {\em $\phi$-irreducible} if for all $x \in \X$ and
+for all $A \in \B$ such that $\phi(A) > 0$ there exists $n$ such that
+$P^n (x, A) > 0$.  This is a key property in many MCMC settings, but
+is not enough to ensure desirable long run properties; consider the
+Markov chain in Example~\ref{mcmc:ex:detmc} which is irreducible.
+
+There is some arbitrariness in the definition of
+$\phi$-irreducibility, but if for some $\phi$, $P$ is
+$\phi$-irreducible, then there exists a maximal irreducibility
+measure $\psi$ (meaning that $\psi(A) = 0$ implies $\phi(A)=0$ for all
+irreducibility mmeasure $\phi$).
+
+\begin{prop}
+  \label{mcmc:prop:inv_irreducible}
+  If $\lambda$ is an invariant measure for the Markov kerenle $P$ and,
+  for some $\phi$, $P$ is $\phi$-irreducible, then $P$ is
+  $\lambda$-irreducible. 
+\end{prop}
+
+\begin{cor}
+  If $P$ is $\lambda$-symmetric and $\phi$-irreducible, then $P$ is
+  $\lambda$-irreducible.  
+ \end{cor}
+
+Often inspection of the kernel $P$ and the underlying space $\X$
+is enough to establish irreducibility.  For example, many kernels
+obvioulsy satisfy a positivitiy condition so that $P(x, A) > 0$ for
+all $x \in \X$ and $A \in \B$.
+ 
  
 
 
@@ -244,9 +369,21 @@ invariant for $P$.
 \end{hw}
 
 \begin{hw}
-Whta is the invariant distribution of the Markov chain defined in
+What is the invariant distribution of the Markov chain defined in
 Example~\ref{mcmc:ex:detmc}?
 \end{hw}
+
+\begin{hw}
+  Consider the Gibbs samplers in Example~\ref{mcmc:ex:disc_Gibbs}.
+  establish that the Gibbs sampler on $\X_1 = \Y_1 = (0,1)$ and
+  $\X_2 = \Y_2 = (2,3)$ is not irreducible while the one on
+  $\X_1 = \Y_1 = \X_2 = (0,1)$ and $ \Y_2 = (2,3)$ is irreducible.
+\end{hw}
+
+\begin{hw}
+Establish Proposition~\ref{mcmc:prop:inv_irreducible}.
+\end{hw}
+
 
 
 \newpage
