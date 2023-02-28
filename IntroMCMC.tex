@@ -349,9 +349,20 @@ irreducibility mmeasure $\phi$).
  \end{cor}
 
 Often inspection of the kernel $P$ and the underlying space $\X$
-is enough to establish irreducibility.  For example, many kernels
-obvioulsy satisfy a positivitiy condition so that $P(x, A) > 0$ for
-all $x \in \X$ and $A \in \B$.
+is enough to establish $\phi$-irreducibility.  For example, many kernels
+obviously satisfy a positivitiy condition so that $P(x, A) > 0$ for
+all $x \in \X$ and $A \in \B$ with $\phi(A) > 0$. The following is a
+special case of a more general result \cite[][Theorem 3]{geye:2014},
+but is often useful.
+
+\begin{prop}
+  \label{mcmc:prop:irred}
+Suppose $\X$ is a connected, separable metric space.  If every
+nonempty, open set $A$ satisfies $\phi(A)>0$ and every point has a
+$\phi$-communicating neighborhood, the Markov kernel is
+$\phi$-irreducible.  
+\end{prop}
+
  
  
 
@@ -383,6 +394,11 @@ Example~\ref{mcmc:ex:detmc}?
 \begin{hw}
 Establish Proposition~\ref{mcmc:prop:inv_irreducible}.
 \end{hw}
+
+\begin{hw}
+  Establish Proposition~\ref{mcmc:prop:irred}.
+\end{hw}
+
 
 
 
