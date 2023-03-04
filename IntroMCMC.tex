@@ -131,9 +131,9 @@ P(x, B) = \int_{B} \left[ \frac{1}{2} \frac{1}{x} I_{y}((0,x)) +
 In Example~\ref{mcmc:ex:betawalk}, the integrand in the Markov kernel
 is a conditional density on $\X$.  This is a setting that will be
 encountered repeatedly throughout.  If there is a conditional density
-$k (y \mid x)$ such that the Markov kernel satisfies for $B \in \B$
+$k (y \mid x)$, with respect to a measure $\lambda$, such that the Markov kernel satisfies for $B \in \B$
 \[
-P(x, B) = \int_{B} k(y \mid x) \df y
+P(x, B) = \int_{B} k(y \mid x) \lambda(\df y),
 \]
 then say $k$ is a {\em Markov transition density}.
 
@@ -185,8 +185,10 @@ then $X_{n+1} \sim \lambda$.  That is, the marginal distribution does
 not depend upon $n$ in which case the Markov chain is {\em
   stationary}.
 
+{\color{blue} Come back to these examples.}
+
 \begin{example}
-  \end{example}
+\end{example}
 
 \begin{example}
   Recall the Markov chain defined in Example~\eqref{mcmc:ex:2varGS}
@@ -365,11 +367,42 @@ $\phi$-irreducible.
 
  
  
+\section{Constructing MCMC Algorithms}
+\label{mcmc:sec:construct}
 
-
-\section{Metropolis-Hastings}
+\subsection{Metropolis-Hastings}
 \label{mcmc:sec:mh}
 
+{\color{blue} Give credit to R?}
+
+The fundamental MCMC algorithm is Metropolis-Hastings \cite{hast:1970,
+  metr:1953}.  It serves as a building block for many, if not most,
+applications of MCMC.  The following will be generalized later, but,
+for now, suppose $\X \subseteq \real^d$ and that $q(x,y)$ is a
+proposal conditional density that is easy to sample.  This notation can take an
+adjustment for those accustomed to the alternative $q(y \mid x)$, which is more
+common in statistics.  Define the {\em Hastings ratio}
+\[
+r(x,y) = \frac{f(y)q(y,x)}{f(x)q(x, y)}
+\]
+and note that the numerator defines a joint density for $(X,Y)$ while
+the denominator defines a joint density for $(Y,X)$.
+
+\begin{algorithm}[H]
+ \caption{Metropolis-Hastings} \label{mcmc:alg:mh}
+ \begin{algorithmic}[1]
+   \State {\it Input:} Current value $X_n = x$.
+
+   \State Draw $Y \sim Qx, \cdot)$ \State Draw
+   $U \sim \text{Uniform}(0,1)$
+   
+   \State If $u \le r(x,y) \wedge 1$, accept $y$ and set $X_{n+1}=y$,
+   else set $X_{n+1} = x$.
+ \end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{mcmc:alg:mh} is the formal definition, but is not at
+all how the algorithm should be implemented in practice.
 
 \section*{Exercises}
 \addcontentsline{toc}{section}{Exercises}
