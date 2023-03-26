@@ -314,12 +314,12 @@ The above examples demonstrate that one way problems arise is when the
 Markov chain cannot access all of the space eventually and hence
 properties which avoid this are required.
 
-Let $\phi$ be a non-triviual positive measure on $\B$.  Then $A \in
+Let $\phi$ be a non-trivial positive measure on $\B$.  Then $A \in
 \B$ is {\em $\phi$-communicating} if for all $B \subseteq A$ such that
 $\phi(B) > 0$ and for all $x \in A$, there exists $n$ such that
 $P^n(x,B) >0$.
 
-This is a weak property that does not ensure desirable long run
+This is a weak property that does not alone ensure desirable long run
 properties.  Consider the Gibbs sampler from
 Example~\ref{mcmc:ex:disc_Gibbs} with $\X_1 = \Y_1 = (0,1)$ and
 $\X_2 = \Y_2 = (2,3)$. If $\phi$ denotes Lebesgue measure, then this
@@ -383,26 +383,102 @@ proposal conditional density that is easy to sample.  This notation can take an
 adjustment for those accustomed to the alternative $q(y \mid x)$, which is more
 common in statistics.  Define the {\em Hastings ratio}
 \[
-r(x,y) = \frac{f(y)q(y,x)}{f(x)q(x, y)}
+r(x,y) = \frac{f(y)q(y,x)}{f(x)q(x, y)} .
 \]
-and note that the numerator defines a joint density for $(X,Y)$ while
-the denominator defines a joint density for $(Y,X)$.
+%and note that the numerator defines a joint density for $(X,Y)$ while
+%the denominator defines a joint density for $(Y,X)$.
 
 \begin{algorithm}[H]
  \caption{Metropolis-Hastings} \label{mcmc:alg:mh}
  \begin{algorithmic}[1]
    \State {\it Input:} Current value $X_n = x$.
 
-   \State Draw $Y \sim Qx, \cdot)$ \State Draw
+   \State Draw $Y \sim Q(x, \cdot)$ \State Draw
    $U \sim \text{Uniform}(0,1)$
    
-   \State If $u \le r(x,y) \wedge 1$, accept $y$ and set $X_{n+1}=y$,
+   \State If $u \le r(x,y) \wedge 1$, accept $y$ and set $X_{n+1}= y$,
    else set $X_{n+1} = x$.
  \end{algorithmic}
 \end{algorithm}
 
 Algorithm~\ref{mcmc:alg:mh} is the formal definition, but is not at
-all how the algorithm should be implemented in practice.
+all how the algorithm should be implemented in practice.  The
+following implemenattion will help avoid overflow issues.
+
+\begin{algorithm}[H]
+ \caption{Metropolis-Hastings Implementation} \label{mcmc:alg:mh}
+ \begin{algorithmic}[1]
+   \State {\it Input:} Current value $X_n = x$.
+
+   \State Draw $Y \sim Q(x, \cdot)$ \State Draw
+   $U \sim \text{Uniform}(0,1)$
+
+   \State If $\log r(x,y) \ge 0$ set $X_{n+1}= y$, else if $u \le
+   r(x,y)$, set $X_{n+1}= y$, else set $X_{n+1} = x$.
+ \end{algorithmic}
+\end{algorithm}
+
+Metropolis-Hastings defines a Markov kernel.  Specifically, if
+$\alpha(x, y) = 1 \wedge r(x,y)$, then 
+\begin{equation}
+  \label{mcmc:eq:mh.kernel}
+  P(x, \df y) = Q(x, \df y) + \delta_x(\df y) \int \left[ 1 -
+    \alpha(x, u) \right] Q(x, \df u) .
+\end{equation}
+
+\begin{prop}
+  \label{mcmc:prop:mh.symmetric}
+  The Metropolis-Hastings kernel~\eqref{mcmc:eq:mh.kernel} is $F$-symmetric.
+\end{prop}
+
+\begin{proof}
+  It suffices to consider $x \neq y$.  Then
+  \begin{align*}
+    F(\df x) P(x, \df y) & = f(x) q(x, y) \left[ 1 \wedge r(x, y)
+                           \right] \mu(\df x) \mu(\df y) \\
+    &  = \left[ f(x) q(x, y) \wedge f(y) q(y, x) \right] \mu(\df x)
+      \mu(\df y) \\
+    & = f(y) q(y, x) \left[ 1 \wedge r(y,x) \right] \mu(\df x) \mu(\df
+      y) \\
+    & = F(\df y) P(y, \df x) .
+    \end{align*}
+  \end{proof}
+
+  The proof of the following result is easy and is left as
+  an exercise.
+
+\begin{prop}
+ \label{mcmc:prop:mh.irreducible}
+If $q(x, y) > 0$ for all $x,y \in \X$, then the Metropolis-Hastings
+kernel $P$ is $F$-irreducible.
+\end{prop}
+
+\begin{example}
+  Suppose $F$ is the standard normal distribution.  If the proposal
+  distribution is the Student's $t$ distribution with $d \ge 1$
+  degrees of freedom, then by
+  Proposition~\ref{mcmc:prop:mh.irreducible} the resulting
+  Metropolis-Hastings kernel is $F$-irreducible.
+
+  If the proposal dsitribution is $\text{Uniform}(0,1)$, then the
+  resulting Metropolis-Hastings kernel is obviously reducible since no
+  value outside of $(0,1)$ will be proposed.
+
+  Now if $X_n = x$ and the proposal is $\text{Uniform}(x -1,
+  x+1)$, then Proposition~\ref{mcmc:prop:irred} can be sued to
+  establish $F$-irreducibility.  The first two conditions of the
+  proposition are easy consequences of the properties of the real
+  line.  Let $0 < \delta < 1$ so that $N_{x, \delta} = (x - \delta, x + \delta)$ is a
+  neighborhood of $\{ x\}$ and
+  \[
+P(x, N_{x, \delta}) = \int_{x-\delta}^{x+\delta} \frac{1}{2} \left( 1 \wedge
+e^{-0.5(x^2 + y^2} \right) \df y > 0
+\]
+from which it is easy to see that $N_{x,\delta}$ is an $F$-communicating neighborhood.
+\end{example}
+
+\subsubsection{Common Strategies for Choosing a Proposal}
+\label{mcmc:sec:choosing.proposal'}
 
 \section*{Exercises}
 \addcontentsline{toc}{section}{Exercises}
@@ -431,6 +507,17 @@ Establish Proposition~\ref{mcmc:prop:inv_irreducible}.
 \begin{hw}
   Establish Proposition~\ref{mcmc:prop:irred}.
 \end{hw}
+
+\begin{hw}
+  Prove that Metropolis-Hastings  has Markov
+  kernel given in~\eqref{mcmc:eq:mh.kernel}.  Hint: Note that if $A \in \B$
+  and $j \ge 1$ then
+  \[
+    \Pr( X_{j+1} \in A \mid X_j) = \Pr(X_{j+1} \in A , U \le
+    \alpha(x, y) \mid X_j) +  \Pr(X_{j+1} \in A , U >
+    \alpha(x, y) \mid X_j) .
+    \]
+  \end{hw}
 
 
 
