@@ -1,6 +1,6 @@
 # Fundamentals of Markov Chain Monte Carlo
 
-The first goal is to write up notes from MCMC topics course.  The second goal is to see if it can be turned into a sensible book.  The intendend audience consists of researchers new to MCMC theory (as opposed to Markov chain theory), for example, third-year PhD students.
+The goal is to write up notes from MCMC topics course.  The intendend audience consists of researchers new to MCMC theory (as opposed to Markov chain theory), for example, third-year PhD students.
 
 * Monte Carlo
   * Introduction
