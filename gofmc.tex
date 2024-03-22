@@ -298,7 +298,7 @@ setting.  A couple of examples may help illuminate the difference.
   \stackrel{iid}{\sim}\text{N}(0, \sigma^2)$.  The goal is to test the
   hypotheses $H_0 \, : \, \beta=0$ versus $H_1 \, : \, \beta \neq 0$
   with a type 1 error rate of $\alpha=.05$.  Then $\beta$ is estimated
-  using least squares and a standard t-test used for testing the
+  using least squares and a standard t-test may be used for testing the
   hypotheses.
 
   How robust is this procedure to departures from the assumption
@@ -316,9 +316,9 @@ While the theory of Monte Carlo is large sample frequentist theory,
 the asymptotics are as the Monte Carlo sample size $m$ increases.
 Typically, the observed data sample size $n$ is treated as fixed and
 known, but there are situations where it makes more sense to let $n$
-increase to infinity while fixing $m$ or let $m$ and $n$ increase
+increase to infinity while fixing $m$ or letting $m$ and $n$ increase
 simultaneously. These last two settings will not be addressed further
-in tis chapter.
+in this chapter, but will be considered later.
 
 \subsection{Producing a random sample}
 \label{gofmc:sec:Producing}
@@ -338,8 +338,8 @@ random often will not be useful here.
 This section considers some basic ways of obtaining a random sample
 from (non-uniform) $F$, including inversion, ratio of uniforms, the
 accept-reject algorithm, and linchpin variable sampling.  This
-presentation is not in any way intended to be comprehensive and the
-interested reader may consult many other texts for a more thoruroough
+presentation is not intended to be comprehensive and the
+interested reader may consult many other texts for a more thorough
 treatement \cite[e.g.][]{devr:1986, fish:1996, robe:case:2004}.
 
 \subsubsection{Inversion} 
@@ -390,7 +390,7 @@ The accept-reject algorithm is a stochastic algorithm in that
 the accept-reject step is random.  The probability of acceptance on a 
 given step is
 \begin{align*}
-P( U \le f(y) / M g(y)) & = E \left[P( U \le f(y) / M g(y)) | Y \right]\\
+P( U \le f(y) / M g(y)) & = E \left[P( U \le f(y) / M g(y)) \mid  Y \right]\\
 & = E \left[ \frac{f(Y)}{Mg(Y)} \right]\\
 & = \frac{1}{M} \; .
 \end{align*}
@@ -402,20 +402,20 @@ Algorithm~\ref{gofmc:alg:accept-reject} produces $X \sim F$.
 \begin{proof}
 Notice that
 \begin{align*}
-P(X \le x) & = P(Y \le x | U \le f(y) / M g(y)) \\
+P(X \le x) & = P(Y \le x \mid U \le f(y) / M g(y)) \\
 & =  \frac{P(Y \le x,  U \le f(y) / M g(y))}{P( U \le f(y) / M g(y)) }
 \; .
 \end{align*}
 Now consider numerator and denominator separately:
 \begin{align*}
 P(Y \le x,  U \le f(y) / M g(y)) &= E \left[ P(Y \le x,  U \le f(y) / M
-  g(y)) | Y \right] \\
+  g(y)) \mid  Y \right] \\
 & = E \left[ I(Y \le x) \frac{f(Y)}{M g(Y)} \right] \\
 & = \frac{1}{M} F(x)
 \end{align*}
 and
 \begin{align*}
-P( U \le f(y) / M g(y)) & = E \left[P( U \le f(y) / M g(y)) | Y \right]\\
+P( U \le f(y) / M g(y)) & = E \left[P( U \le f(y) / M g(y)) \mid Y \right]\\
 & = E \left[ \frac{f(Y)}{Mg(Y)} \right]\\
 & = \frac{1}{M} \; .
 \end{align*}
@@ -495,7 +495,7 @@ following ratio of uniforms algorithm using accept-reject.
  \end{algorithmic}
 \end{algorithm}
 
-Now it is easy to see that the probability of acceptance is
+The probability of acceptance is
 \begin{equation}
 \label{gofmc:eq:rou acceptance probability}
 \frac{\text{area}(\sA_h)}{\text{area(A)}}=\frac{\text{area}(\sA_h)}{b(d-c)} 
@@ -515,11 +515,11 @@ and the acceptance probability \eqref{gofmc:eq:rou acceptance
 \label{gofmc:sec:linchpin variables}
 
 The accept-reject and ratio of uniforms algorithms can be difficult to
-apply in multivariate settings, that is, when $d > 1$. However,
-surprisingly often a complicated multivariate simulation setting can
-be converted to simulating from a simpler distribution.  Suppose $f$
-can be expressed as a product of a conditional pf $f_{X \mid Y}$ and
-a marginal pf $f_{Y}$ so that
+apply in multivariate settings, that is, when $d > 1$. However, a
+complicated multivariate simulation setting often can be converted to
+simulating from a simpler distribution.  Suppose $f$ can be expressed
+as a product of a conditional pf $f_{X \mid Y}$ and a marginal pf
+$f_{Y}$ so that
 \[
 f(x, y) = f_{X \mid Y}(x\mid y) f_{Y}(y)
 \]
@@ -539,6 +539,23 @@ useful only when sampling from the marginal $F_Y$ is easier than
 sampling from the joint $F$.
 
 \begin{example}
+	\label{ex:rosenbrock}
+	Consider the Rosenbrock (or banana) density on $\mathbb{R}^{2}$
+	\[
+	f(x,y) \propto \exp\left\{ - \frac{1}{20} \left[ 100(x - y^2)^{2} +
+	(1-y)^{2} \right]\right\}.
+	\]
+	This has become a benchmark example for illustrating the
+	performance of sampling methods in highly correlated settings.  In
+	particular, because the contour plots resemble the shape of a banana,
+	it can be a challenge to implement an effective sampling algorithms. Notice
+	that by inspection of the joint density,
+	$X|Y=y \sim \text{N}(y^{2}, 10^{-1})$ and integrating $f(x,y)$ with
+	respect to $x$ yields that $Y \sim \text{N}(1,10)$. Hence $Y$ is a
+	linchpin variable and it is simple to implement conditional sampling.
+\end{example}
+
+\begin{example}
 \label{gofmc:ex:pump failure}
 For $i=1, \ldots, n$ assume $t_i > 0$ is known and let
 $Y_{i} \mid \lambda_i \stackrel{ind}{\sim} \text{Poisson}(t_i
@@ -551,7 +568,7 @@ f(\beta, \lambda \mid y) \propto \left( \prod_{i=1}^{n} \lambda_{i}^{a +
     y_i - 1} e^{-(\beta+ t_i)\lambda_i}\right) \beta^{an+c-1}
 e^{-\beta d} \; .
 $$
-By inspection the conditionals
+By inspection the conditionals are 
 $\lambda_i \mid \beta \stackrel{ind}{\sim} \text{Gamma}(a+y_i, \beta +
 t_i)$ and the marginal pf for $\beta$ is characterized by
 $$
@@ -680,8 +697,7 @@ In estimating $\theta$ with $\theta_m$, even for large values of the
 Monte Carlo sample size, $m$, there will be an unknown Monte Carlo
 error, $\theta_{m} - \theta$. Thus $\theta_{m}$ will be more valuable
 if there is a measure of its accuracy and it is reported.  This can be
-accomplished with an interval estimator if $\theta_m - \theta$ through
-its approximate sampling distribution. The interval estimator will
+accomplished with an interval estimator  through the approximate sampling distribution of the Monte Carlo error. The interval estimator will
 allow assessment of the Monte Carlo error in the sense that it can
 describe the confidence in the number of significant figures reported.
 For example, suppose $\theta_{1000}=123.45$.  Then there are 5
@@ -694,7 +710,7 @@ of precision this would prompt increasing the Monte Carlo sample
 size.
 
 Consider the estimators $\mu_m$ and $\xi_{q,m}$; the general case will
-be consideredlater. If $\mu_m$ estimates
+be considered later. If $\mu_m$ estimates
 an expectation $\mu_h$, then a central limit theorem (CLT) holds under
 classical conditions: If $E_{F} [h^{2}(X)] < \infty$, then, as $m \to
 \infty$,
@@ -729,7 +745,7 @@ q(1-q)/f(\xi_{q})^{2}) \; .
 \]
 Hence constructing a confidence interval for $\xi_{q}$ will require
 estimation of $f(\xi_{q})$.  If $f$ can be evaluated, then $f(\xi_{m,
-  q})$ would suffice.  Otherwise ome would need to estimate the density
+  q})$ would suffice.  Otherwise one would need to estimate the density
 at the  point  $\xi_{n, q}$ to obtain $\hat{f}(\xi_{m, q})$.  A 
  $100(1-\alpha)$\% confidence interval for the unknown value
 $\xi_q$ in the usual way: if $z_{\alpha/2}$ denotes a quantile
@@ -756,7 +772,7 @@ features of $F$.
 
 For definiteness we will suppose $h : \sX \to \real^p$ for some
 $p \ge 1$ so that $\mu_n$ is a $p$-dimensional vector. Of course, if
-$h$ is the identity mapping then $p=d$, but in general the relative
+$h$ is the identity mapping, then $p=d$, but in general the relative
 size of $d$ and $p$ is context dependent.  Let $Y_j = h(X_j)$. As long
 as the Monte Carlo sample size satisfies $m > p$, describing the
 variability in the sample is based on the sample covariance matrix
@@ -853,8 +869,7 @@ Using univariate confidence intervals would require adjustment for
 multiplicity, perhaps a Bonferroni correction.  Adjusting individual
 confidence intervals can work well when $p$ is small, but will be
 overly conservative if $p$ is even somewhat large.  Indeed smaller
-regions are possible even when $p=2$. Also, the use of rectangular
-confidence regions ignores the correlation between components.  The
+regions are possible even when $p=2$. The
 Monte Carlo estimation process can be better understood by using an
 explicit multivariate approach.
 
@@ -884,6 +899,14 @@ the ellipsoidal region is oriented along axes determined by the
 corresponding eigenvectors and whose lengths are proportional to
 $\sqrt{\lambda_{i}}$.
 
+Also, the use of rectangular
+confidence regions ignores the correlation between components.
+
+Rectangular versus Ellipsoidal regions.  SimTools.
+
+%%%%%
+\begin{comment}
+
 The volume of the confidence ellipsoid is given by
 $$
 \frac{2 \pi^{p/2} k^p}{p \Gamma(p)} \left[ \frac{\det(S)}{m}
@@ -896,8 +919,7 @@ $\det(S)=\lambda_1 \cdots \lambda_p$ so a small generalized variance
 can be achieved with one tiny eigenvalue. Thus examination of the
 sample eigenvalues is advised in applications.
 
-%%%%%
-\begin{comment}
+
 \subsubsection{Multivariate Stopping Rules}
 \label{gofmc:sec:mstop}
 The obvious extension of the univariate approach to controlling the width

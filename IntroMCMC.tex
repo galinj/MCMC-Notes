@@ -215,7 +215,7 @@ Exercise~\ref{mcmc:hw:dbc}.  Detailed balance holds if
  where MCMC is required it is typically difficult to simulate from the
  invariant distribution.  The most that can be hoped for is that the
  simulation will eventually produce a representative sample from $F$.
- This long-run behavior is in no way guaranteed without additional
+ This long-run behavior is in not guaranteed without additional
  assumptions. The following simple examples illustrate that the
  problems can arise due to the either the way the kernel is specified
  or the properties of the state space $\X$.
@@ -287,7 +287,7 @@ f_{Y \mid X}(y \mid x) = \frac{1}{2} I(0 < x < 1) \left[ I(0 < y < 1) + I(2 < y 
 \]
 and that, no matter which square, $\X_1 \times \Y_1$ or $\X_2 \times
 \Y_2$,  the current state is in there is a positive probability of the
-next state being in either square.  This Gibbs sapler will eventually
+next state being in either square.  This Gibbs sampler will eventually
 produce a representative sample.
 
 Now consider the setting with $\X_1 = \Y_1 = (0,1)$ and $\X_2 = \Y_2 =
@@ -317,9 +317,7 @@ properties which avoid this are required.
 Let $\phi$ be a non-trivial positive measure on $\B$.  Then $A \in
 \B$ is {\em $\phi$-communicating} if for all $B \subseteq A$ such that
 $\phi(B) > 0$ and for all $x \in A$, there exists $n$ such that
-$P^n(x,B) >0$.
-
-This is a weak property that does not alone ensure desirable long run
+$P^n(x,B) >0$. This is a weak property that does not alone ensure desirable long run
 properties.  Consider the Gibbs sampler from
 Example~\ref{mcmc:ex:disc_Gibbs} with $\X_1 = \Y_1 = (0,1)$ and
 $\X_2 = \Y_2 = (2,3)$. If $\phi$ denotes Lebesgue measure, then this
@@ -336,11 +334,11 @@ There is some arbitrariness in the definition of
 $\phi$-irreducibility, but if for some $\phi$, $P$ is
 $\phi$-irreducible, then there exists a maximal irreducibility
 measure $\psi$ (meaning that $\psi(A) = 0$ implies $\phi(A)=0$ for all
-irreducibility mmeasure $\phi$).
+irreducibility measures $\phi$).
 
 \begin{prop}
   \label{mcmc:prop:inv_irreducible}
-  If $\lambda$ is an invariant measure for the Markov kerenle $P$ and,
+  If $\lambda$ is an invariant measure for the Markov kernel $P$ and,
   for some $\phi$, $P$ is $\phi$-irreducible, then $P$ is
   $\lambda$-irreducible. 
 \end{prop}
@@ -350,9 +348,9 @@ irreducibility mmeasure $\phi$).
   $\lambda$-irreducible.  
  \end{cor}
 
-Often inspection of the kernel $P$ and the underlying space $\X$
+Often, inspection of the kernel $P$ and the underlying space $\X$
 is enough to establish $\phi$-irreducibility.  For example, many kernels
-obviously satisfy a positivitiy condition so that $P(x, A) > 0$ for
+obviously satisfy a positivity condition so that $P(x, A) > 0$ for
 all $x \in \X$ and $A \in \B$ with $\phi(A) > 0$. The following is a
 special case of a more general result \cite[][Theorem 3]{geye:2014},
 but is often useful.
@@ -379,9 +377,10 @@ The fundamental MCMC algorithm is Metropolis-Hastings \cite{hast:1970,
   metr:1953}.  It serves as a building block for many, if not most,
 applications of MCMC.  The following will be generalized later, but,
 for now, suppose $\X \subseteq \real^d$ and that $q(x,y)$ is a
-proposal conditional density that is easy to sample.  This notation can take an
-adjustment for those accustomed to the alternative $q(y \mid x)$, which is more
-common in statistics.  Define the {\em Hastings ratio}
+proposal conditional density that is easy to sample.
+%This notation can take an adjustment for those accustomed to the
+%alternative $q(y \mid x)$, which is more common in statistics.
+Define the {\em Hastings ratio}
 \[
 r(x,y) = \frac{f(y)q(y,x)}{f(x)q(x, y)} .
 \]
@@ -403,7 +402,7 @@ r(x,y) = \frac{f(y)q(y,x)}{f(x)q(x, y)} .
 
 Algorithm~\ref{mcmc:alg:mh} is the formal definition, but is not at
 all how the algorithm should be implemented in practice.  The
-following implemenattion will help avoid overflow issues.
+following implementation will help avoid overflow issues.
 
 \begin{algorithm}[H]
  \caption{Metropolis-Hastings Implementation} \label{mcmc:alg:mh}
@@ -454,18 +453,14 @@ kernel $P$ is $F$-irreducible.
 \end{prop}
 
 \begin{example}
-  Suppose $F$ is the standard normal distribution.  If the proposal
+  Suppose continuous density $f$ has support $\X = \real$ and consider three settings.  Firstly, if the proposal
   distribution is the Student's $t$ distribution with $d \ge 1$
   degrees of freedom, then by
   Proposition~\ref{mcmc:prop:mh.irreducible} the resulting
-  Metropolis-Hastings kernel is $F$-irreducible.
-
-  If the proposal dsitribution is $\text{Uniform}(0,1)$, then the
+  Metropolis-Hastings kernel is $F$-irreducible.    Secondly, if the proposal distribution is $\text{Uniform}(0,1)$, then the
   resulting Metropolis-Hastings kernel is obviously reducible since no
-  value outside of $(0,1)$ will be proposed.
-
-  Now if $X_n = x$ and the proposal is $\text{Uniform}(x -1,
-  x+1)$, then Proposition~\ref{mcmc:prop:irred} can be sued to
+  value outside of $(0,1)$ will be proposed. Thirdly,  if $X_n = x$ and the proposal is $\text{Uniform}(x -1,
+  x+1)$, then Proposition~\ref{mcmc:prop:irred} can be used to
   establish $F$-irreducibility.  The first two conditions of the
   proposition are easy consequences of the properties of the real
   line.  Let $0 < \delta < 1$ so that $N_{x, \delta} = (x - \delta, x + \delta)$ is a
@@ -477,8 +472,142 @@ e^{-0.5(x^2 + y^2} \right) \df y > 0
 from which it is easy to see that $N_{x,\delta}$ is an $F$-communicating neighborhood.
 \end{example}
 
-\subsubsection{Common Strategies for Choosing a Proposal}
+\subsubsection{Classical Strategies for Choosing a Proposal}
 \label{mcmc:sec:choosing.proposal'}
+
+An {\em Independence Metropolis-Hastings} results if the proposal is
+independent of the previous state.  That is, $Y \sim Q$.   For
+example, suppose the proposal is a $d$-dimensional normal distribution
+with fixed mean $m$ and covariance $C$, so that  $X_t' \sim N_{d}(m,
+C)$.
+
+Independence MH is one of the simplest and best understood MH Markov
+chains.  However, it is unlikely to be effective in many settings, as will be
+shown later.
+
+Another well-studied version is the {\em Symmetric
+  Metropolis-Hastings}, which results when the proposal distribution
+which is symmetric about the current state $X_{t-1}$, so
+$q(x, y)=q(y, x)$. For example, suppose the proposal is a
+  $d$-dimensional normal distribution centered at the previous
+  iteration with covariance matrix $h I_d$ so that
+  $X_t' \mid X_{t-1} \sim N_{d}(X_{t-1}, h I_d)$.  The scaling
+  parameter $h > 0$ is user-specified.
+
+
+If the proposal of a symmetric Metropolis-Hastings also satisfies
+$q(x, y) = q(\|x-y\|)$, then a {\em Random-Walk Metropolis-Hastings}
+sampler results.  Note that the proposal,
+$X_t' \mid X_{t-1} \sim N_{d}(X_{t-1}, h I_d)$, in the previous
+example results in random walk Metropolis-Hastings.  Another example
+would be a $\text{Uniform}(x - h, x + h)$, $h >0$, proposal.
+
+
+Suppose the proposal distribution is a $d$-dimensional normal
+distribution where the mean takes a gradient descent step and
+covariance $h I_d$ so that
+\[
+  X_t' \mid X_{t-1} \sim N_d (X_{t-1} + (h/2) \nabla \log(f(X_{t-1})), h I_d) .
+\]
+The gradient does not require the normalization constant of $f$.
+The motivation for this construction comes from discretized Langevin
+dynamics \citep{robe:1996} and, consequently, is known as
+Metropolis-Adjusted Langevin Algorithm (MALA).
+
+These examples barely scratch the surface of Metropolis-Hastings
+variations.  For example, much recent research has gone into
+Hamiltonian Monte Carlo which uses a proposal based on discretized
+Hamiltonian dynamics \citep{neal:2011}.  Extensions to Riemanian
+manifold MALA and Hamiltonian variants also exist
+\citep{giro:cald:2011}.  Some of these will be encountered later.
+
+\subsection{Combining Markov Kernels}
+\label{mcmc:sec:combining.kernels}
+
+Markov kernels may be combined in order to create more effective
+algorithms.  There are two basic ways of doing so that will be
+exploited below.  For now, suppose $P_{1}, \ldots, P_{d}$ are Markov
+kernels such that $FP_{i} = F$ for $i=1,\ldots,d$. The {\em
+  composition} kernel is defined by
+\[
+P_C(x, \cdot) = (P_{1} \cdots P_{d})(x, \cdot) 
+\]
+and corresponds to cycling through the kernels in a specified
+order. If each $r_i > 0$ such that $r_{1} + \cdots + r_{d} =1$, then
+the {\em mixing} kernel is defined by
+\[
+  P_{m}(x \cdot) = r_{1} P_{1}(x, \cdot) + \cdots + r_{d} P_{d}(x, \cdot)
+\]
+and corresponds to updating via the kernel selected by the mixing 
+probabilities $r_i$. It is an easy exercise to verify that $FP_{c} = F$ and $FP_{m} =
+F$.
+
+\subsection{Component-wise Updates}
+\label{mcmc:sec:componentwise}
+
+It is rare that Metropolis-Hastings can be used without modification in
+practically relevant settings.  The distribution $F$ is often
+too complicated or too high-dimensional for a block
+Metropolis-Hastings update to be effective.  It is natural to seek to
+work with smaller problems.
+
+Since this is introductory, the focus will be on the setting where
+$f(x,y)$ is a density function on $\X \times \Y$, that is, the
+so-called {\em two-variable} setting.  The extension to the setting
+with more than two variables is straightforward through the usual
+properties of joint probability functions.
+
+\subsubsection{Linchpin Variables}
+\label{mcmc:sec:linchpin}
+
+Let $f_{X|Y}$ be the pf of the conditional distribution
+of $X$ given $Y$. Let $f_Y$ be the pf of the marginal
+distribution of $Y$. If sampling from $f_{X\mid Y}$ is
+straightforward, recall that $Y$ is a linchpin variable
+ since
+% 
+\begin{equation}
+  \label{eq:lv}
+f(x,y) = f_{X \mid Y}(x|y)\, f_Y(y). 
+\end{equation}
+% 
+Recall that exact samples can be obtained by first simulating $Y \sim f_{Y}$
+followed by $X \sim f_{X \mid Y}$.  However, $F_{Y}$ may be complicated or difficult to sample directly so
+it is natural to turn to MCMC.  Let $P_{Y}(y, \cdot)$ be a Markov
+kernel such that $F_{Y}$ is invariant.  Then the linchpin variable
+sampler is specified in Algorithm~\ref{alg:lvs}.
+
+\begin{algorithm}
+  \caption{Linchpin variable sampler} \label{alg:lvs}
+  \begin{algorithmic}[1]
+  \State {\it Input:} Current value $(X_j, Y_j)$
+  \State Draw $Y_{j+1} \sim P_{Y}(Y_{j}, \cdot) $. 
+
+  \State Draw $X_{j+1} \sim F_{X|Y}(\cdot \mid Y_{j+1})$.
+
+  \State Set $j=j+1$
+\end{algorithmic}
+\end{algorithm}
+
+The resulting Markov kernel is given by
+\begin{equation}
+  \label{mcmc:eq:lv_kernel}
+P((x,y), A) = \int_{A} F_{X \mid Y} (dx' \mid y') P_{Y}(y, dy')
+\end{equation}
+That $F$ is invariant is left as an exercise.
+
+Linchpin variable samplers have been employed in a variety of
+scenarios. Their success is typically due to either (1) superior
+mixing in the lower-dimensional space, (2) de-correlation of
+components via the linchpin variables, or (3) lower post-processing
+costs.
+
+
+\subsubsection{Conditional Samplers}
+\label{mcmc:sec:conditional}
+
+\ref{mcmc:ex:2varGS}
+
 
 \section*{Exercises}
 \addcontentsline{toc}{section}{Exercises}
@@ -488,10 +617,10 @@ Prove that if Equation~\ref{mcmc:eq:dbc} holds, then $\lambda$ is
 invariant for $P$.
 \end{hw}
 
-\begin{hw}
-What is the invariant distribution of the Markov chain defined in
-Example~\ref{mcmc:ex:detmc}?
-\end{hw}
+%\begin{hw}
+%What is the invariant distribution of the Markov chain defined in
+%Example~\ref{mcmc:ex:detmc}?
+%\end{hw}
 
 \begin{hw}
   Consider the Gibbs samplers in Example~\ref{mcmc:ex:disc_Gibbs}.
@@ -520,7 +649,36 @@ Establish Proposition~\ref{mcmc:prop:inv_irreducible}.
   \end{hw}
 
 
+  \begin{hw}
+    Establish that $F$ is invariant for  the linchpin variable kernel
+    specified in \eqref{mcmc:eq:lv_kernel}.
+  \end{hw}
 
+  \begin{hw}
+    Let $Y \in \real^n$, $\beta \in \real^p$, 
+$u \in \real^k$, $X$ be a known $n \times p$ full column rank design matrix, and $Z$ a known $n \times k$ full column rank matrix. Also 
+assume that $\max\{p, k\} <n$. Then a Bayesian
+linear model is given by the following hierarchy
+\begin{equation}\label{model1}
+\begin{array}{rcl}
+ Y|\beta, u, \lambda_E, \lambda_R & \sim & \textrm{N}_n\left(X\beta+Z u, \lambda_E^{-1}I_n\right) \\
+ g(\beta)                            & \propto & 1 \\
+ u|\lambda_E, \lambda_R           & \sim & \textrm{N}_k\left(0,\lambda_R^{-1}I_k\right) \\
+ \lambda_E                        & \sim & \textrm{Gamma}\left(e_1, e_2\right) \\
+ \lambda_R                        & \sim & \textrm{Gamma}\left(r_1,
+   r_2\right) \,.
+\end{array}
+\end{equation}
+Assume that $e_1, e_2, r_1, r_2>0$ are known hyper-parameters. This
+hierarchy results in a proper posterior \cite{sun:etal:2001} . Let
+$\xi = (\beta^T, u^T)^T$, $\lambda = (\lambda_E, \lambda_R)^T$ and let
+$y$ denote all of the data.  Then the posterior density satisfies
+% 
+\begin{equation}\label{posterior-m22}
+  f(\beta, u, \lambda_E, \lambda_R\mid y) = f(\xi, \lambda\mid y) =
+  f_{\xi|\lambda}(\xi\mid \lambda, y) \, f_{\lambda}(\lambda\mid y)\,.
+\end{equation}
+    \end{hw}
 
 \newpage
 
