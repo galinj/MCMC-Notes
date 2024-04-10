@@ -28,8 +28,9 @@ The goal is to write up notes from MCMC topics course.  The intendend audience c
     * Metropolis-Hastings
     * Choosing the Proposal
     * Component-wise Updates
-    * Gibbs Samplers
-    * Conditional Metropolis-Hastings
+      * Linchpin Variables
+      * Gibbs Samplers
+      * Conditional Metropolis-Hastings
   * Convergence
     * Total variation
     * Wasserstein
