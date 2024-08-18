@@ -38,8 +38,8 @@ The goal is to write up notes from a Markov chain Monte Carlo course I've taught
     * LLN
     * CLT (Means, quantiles, and combo)
     * Mixing Processes
-  * Convergence Rates in Practically Relevant Settings
     * Rates of Convergence
+  * Convergence Rates in Practically Relevant Settings
     * Comparison Theorems
     * Drift and Minorization
     * Upper and Lower Bounds
