@@ -1,6 +1,6 @@
 # Markov Chain Monte Carlo Course Notes
 
-The goal is to write up notes from a Markov chain Monte Carlo course I've taught on a few occasions.  The intendend audience consists of researchers new to MCMC theory and methods.  Thus the foundations of MCMC will be emphasized, not necessarily the most cutting edge research methods.   Updates will be irregular.
+The goal is to write up notes from a Markov chain Monte Carlo course I've taught on a few occasions.  The intendend audience consists of researchers new to MCMC theory and methods.  The foundations of MCMC will be emphasized, not necessarily the most cutting edge research methods and algorithms, at least at first.   Updates will be irregular.
 
 * Monte Carlo
   * Introduction
@@ -25,7 +25,6 @@ The goal is to write up notes from a Markov chain Monte Carlo course I've taught
     * Stochastic Stability
   * Constructing MCMC Algorithms
     * Metropolis-Hastings
-    * Choosing the Proposal
     * Component-wise Updates
       * Linchpin Variables
       * Gibbs Samplers
@@ -39,11 +38,11 @@ The goal is to write up notes from a Markov chain Monte Carlo course I've taught
     * LLN
     * CLT (Means, quantiles, and combo)
     * Mixing Processes
-    * Rates of Convergence
-    * Upper and Lower Bounds
-    * Comparison Theorems
   * Convergence Rates in Practically Relevant Settings
-    * Drfit and Minorization
+    * Rates of Convergence
+    * Comparison Theorems
+    * Drift and Minorization
+    * Upper and Lower Bounds
     * Examples and more examples
     * Variable Transformation
   * Monte Carlo Error
