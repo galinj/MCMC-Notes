@@ -1,6 +1,6 @@
-# Fundamentals of Markov Chain Monte Carlo
+# Markov Chain Monte Carlo Course Note
 
-The goal is to write up notes from MCMC topics course.  The intendend audience consists of researchers new to MCMC theory (as opposed to Markov chain theory), for example, third-year PhD students.
+The goal is to write up notes from MCMC course I've taught on a few occasions.  The intendend audience consists of researchers new to MCMC theory and methods. 
 
 * Monte Carlo
   * Introduction
@@ -42,7 +42,7 @@ The goal is to write up notes from MCMC topics course.  The intendend audience c
     * Rates of Convergence
     * Upper and Lower Bounds
     * Comparison Theorems
-  * Establishing Geometric Ergodicity
+  * Convergence Rates in Practically Relevant Settings
     * Drfit and Minorization
     * Examples and more examples
     * Variable Transformation
