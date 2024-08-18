@@ -1,6 +1,6 @@
-# Markov Chain Monte Carlo Course Note
+# Markov Chain Monte Carlo Course Notes
 
-The goal is to write up notes from MCMC course I've taught on a few occasions.  The intendend audience consists of researchers new to MCMC theory and methods. 
+The goal is to write up notes from a Markov chain Monte Carlo course I've taught on a few occasions.  The intendend audience consists of researchers new to MCMC theory and methods.  Thus the foundations of MCMC will be emphasized, not necessarily the most cutting edge research methods.   Updates will be irregular.
 
 * Monte Carlo
   * Introduction
