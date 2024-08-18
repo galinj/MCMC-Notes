@@ -16,7 +16,6 @@ The goal is to write up notes from MCMC topics course.  The intendend audience c
     * Monte Carlo Error
     * Generalized Monte Carlo Error
     * Confidence Regions
-  * Exercises
  
 * Markov Chain Monte Carlo
   * Markov Chains
