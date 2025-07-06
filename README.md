@@ -4,6 +4,6 @@ The goal is to write up notes from a Markov chain Monte Carlo course I've taught
 
 [Monte Carlo](https://github.com/galinj/MCMC-Notes/tree/main/Monte%20Carlo/gofmc.pdf)
 
-[Markov chain Monte Carlo Algorithms](https://github.com/galinj/MCMC-Notes/tree/f40ce72b9b92327b0270e1d633aba00df0eaa3af/Intro_MCMC)
+[Markov chain Monte Carlo Algorithms](https://github.com/galinj/MCMC-Notes/blob/f40ce72b9b92327b0270e1d633aba00df0eaa3af/Intro_MCMC/IntroMCMC.pdf)
  
    
